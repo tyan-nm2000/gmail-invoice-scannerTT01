@@ -1,7 +1,7 @@
 name: Scan Gmail Invoices
 
 on:
-  # Run manually from GitHub Actions tab
+  # Run manually from GitHub Actions tab or via gh CLI
   workflow_dispatch:
     inputs:
       max_emails:
@@ -12,13 +12,8 @@ on:
         description: "Gmail search query"
         required: false
         default: "has:attachment filename:pdf"
-      schedule_interval:
-        description: "Schedule interval in minutes (0 = one-time run)"
-        required: false
-        default: "0"
 
   # Default recurring schedule — runs every day at 8 AM UTC
-  # Users can also modify the schedule via scan_config.json
   schedule:
     - cron: "0 8 * * *"
 
@@ -32,6 +27,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -54,7 +51,8 @@ jobs:
             --max-emails ${{ github.event.inputs.max_emails || '25' }} \
             --query "${{ github.event.inputs.query || 'has:attachment filename:pdf' }}" \
             --output output/invoices.csv \
-            --json output/invoices.json
+            --json output/invoices.json \
+            --excel output/invoices.xlsx
 
       - name: Save updated token
         if: always()
@@ -72,6 +70,7 @@ jobs:
           path: |
             output/invoices.csv
             output/invoices.json
+            output/invoices.xlsx
           retention-days: 90
 
       - name: Commit results to repo
@@ -79,6 +78,6 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add output/invoices.csv output/invoices.json
+          git add output/invoices.csv output/invoices.json output/invoices.xlsx
           git diff --cached --quiet || git commit -m "Update invoice scan results [$(date -u +%Y-%m-%d)]"
           git push
