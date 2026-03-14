@@ -1,5 +1,7 @@
 # Gmail Invoice Scanner
 
+> **Release Candidate v1.0.0-rc.1**
+
 Scans your Gmail account for emails with PDF attachments, downloads the PDFs, and extracts invoice data (invoice number, date, due date, total amount, line items).
 
 ## Prerequisites
@@ -76,3 +78,16 @@ The scanner prints a summary table to the console and optionally writes CSV/JSON
 - Only **text-based** PDFs are supported. Scanned/image-only PDFs will be flagged with a warning.
 - Downloaded PDFs are stored in the `attachments/` directory.
 - Credentials (`credentials.json`, `token.json`) are git-ignored for security.
+
+## Changelog (RC)
+
+### v1.0.0-rc.1
+
+- Gmail OAuth 2.0 authentication (interactive, headless, and CI modes)
+- Email search with customizable Gmail queries
+- PDF attachment download and storage
+- Invoice data extraction via Claude AI vision API
+- Regex-based fallback extraction for environments without API access
+- CSV and JSON report output
+- GitHub Actions workflow for automated scanning
+- Version tracking with `--version` flag

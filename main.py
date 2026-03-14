@@ -19,6 +19,8 @@ import sys
 
 from tabulate import tabulate
 
+__version__ = open(os.path.join(os.path.dirname(__file__), "VERSION")).read().strip()
+
 from auth import get_gmail_service
 from scanner import search_emails, get_email_metadata, download_pdf_attachments
 from extractor import extract_invoice_data
@@ -27,6 +29,11 @@ from extractor import extract_invoice_data
 def parse_args():
     parser = argparse.ArgumentParser(
         description="Scan Gmail for PDF invoices and extract data."
+    )
+    parser.add_argument(
+        "--version", "-V",
+        action="version",
+        version=f"%(prog)s {__version__}",
     )
     parser.add_argument(
         "--query", "-q",
@@ -57,6 +64,7 @@ def main():
     args = parse_args()
 
     # ── Authenticate ──────────────────────────────────────────────────────────
+    print(f"Gmail Invoice Scanner v{__version__}")
     print("Authenticating with Gmail API...")
     try:
         service = get_gmail_service()
