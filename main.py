@@ -97,12 +97,18 @@ def main():
             invoice_data["email_date"] = metadata["date"]
             results.append(invoice_data)
 
+            method = invoice_data.get("extraction_method", "unknown")
             if invoice_data.get("error"):
                 print(f"    ⚠ {invoice_data['error']}")
             else:
+                print(f"    [{method}]")
                 print(f"    Invoice #: {invoice_data.get('invoice_number', 'N/A')}")
+                if invoice_data.get("vendor_name"):
+                    print(f"    Vendor:    {invoice_data['vendor_name']}")
                 print(f"    Date:      {invoice_data.get('invoice_date', 'N/A')}")
                 print(f"    Total:     {invoice_data.get('total_amount', 'N/A')}")
+                if invoice_data.get("line_items"):
+                    print(f"    Items:     {len(invoice_data['line_items'])} line item(s)")
         print()
 
     if not results:
@@ -112,7 +118,8 @@ def main():
     # ── Output results ────────────────────────────────────────────────────────
     summary_fields = [
         "file", "email_from", "email_date", "email_subject",
-        "invoice_number", "invoice_date", "due_date", "total_amount",
+        "vendor_name", "invoice_number", "invoice_date", "due_date",
+        "total_amount", "currency", "extraction_method",
     ]
 
     # Console table

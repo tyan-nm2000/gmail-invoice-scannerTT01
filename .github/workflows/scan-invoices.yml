@@ -42,6 +42,8 @@ jobs:
           echo '${{ secrets.GOOGLE_TOKEN }}' > token.json
 
       - name: Run invoice scanner
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
           python main.py \
             --max-emails ${{ github.event.inputs.max_emails || '25' }} \

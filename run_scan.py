@@ -121,18 +121,30 @@ def display_results():
         print(f"{'=' * 60}\n")
 
         for i, inv in enumerate(results, 1):
-            print(f"--- Invoice {i} ---")
+            method = inv.get("extraction_method", "unknown")
+            print(f"--- Invoice {i} [{method}] ---")
             print(f"  File:           {inv.get('file', 'N/A')}")
             print(f"  From:           {inv.get('email_from', 'N/A')}")
             print(f"  Email Date:     {inv.get('email_date', 'N/A')}")
             print(f"  Subject:        {inv.get('email_subject', 'N/A')}")
+            if inv.get("vendor_name"):
+                print(f"  Vendor:         {inv['vendor_name']}")
             print(f"  Invoice #:      {inv.get('invoice_number', 'N/A')}")
             print(f"  Invoice Date:   {inv.get('invoice_date', 'N/A')}")
             print(f"  Due Date:       {inv.get('due_date', 'N/A')}")
             print(f"  Total Amount:   {inv.get('total_amount', 'N/A')}")
-
-            if inv.get("tables"):
-                print(f"  Line Items:     {len(inv['tables'])} table(s) found")
+            if inv.get("currency"):
+                print(f"  Currency:       {inv['currency']}")
+            if inv.get("tax_amount"):
+                print(f"  Tax:            {inv['tax_amount']}")
+            if inv.get("line_items"):
+                print(f"  Line Items:     {len(inv['line_items'])} item(s)")
+                for item in inv["line_items"][:5]:
+                    desc = item.get("description", "N/A")[:50]
+                    amt = item.get("amount", "N/A")
+                    print(f"    - {desc}: {amt}")
+                if len(inv["line_items"]) > 5:
+                    print(f"    ... and {len(inv['line_items']) - 5} more")
             if inv.get("error"):
                 print(f"  Warning:        {inv['error']}")
             print()
