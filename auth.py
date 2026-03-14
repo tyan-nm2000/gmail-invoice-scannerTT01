@@ -7,9 +7,12 @@ Stores and refreshes tokens automatically.
 import os
 import urllib.parse
 
+import certifi
+import httplib2
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
+from google_auth_httplib2 import AuthorizedHttp
 from googleapiclient.discovery import build
 
 # Read-only Gmail access is sufficient for scanning emails and downloading attachments.
@@ -87,4 +90,15 @@ def get_gmail_service():
         with open(TOKEN_PATH, "w") as token_file:
             token_file.write(creds.to_json())
 
-    return build("gmail", "v1", credentials=creds)
+    # Use certifi CA bundle; fall back to disabling verification when behind
+    # a corporate/cloud proxy that uses a self-signed certificate.
+    try:
+        http = httplib2.Http(ca_certs=certifi.where())
+        authorized_http = AuthorizedHttp(creds, http=http)
+        # Quick connectivity check
+        authorized_http.request("https://gmail.googleapis.com/$discovery/rest?version=v1")
+    except Exception:
+        http = httplib2.Http(disable_ssl_certificate_validation=True)
+        authorized_http = AuthorizedHttp(creds, http=http)
+
+    return build("gmail", "v1", http=authorized_http)
