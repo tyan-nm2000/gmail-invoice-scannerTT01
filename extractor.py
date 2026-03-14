@@ -62,12 +62,14 @@ def _get_anthropic_client():
     """Get an Anthropic client if API key is available."""
     api_key = os.environ.get("ANTHROPIC_API_KEY")
     if not api_key:
+        print("  [extractor] ANTHROPIC_API_KEY not set — using regex fallback.")
         return None
     try:
         import anthropic
+        print(f"  [extractor] Using Claude AI (key: {api_key[:12]}...)")
         return anthropic.Anthropic(api_key=api_key)
     except ImportError:
-        print("  Warning: anthropic package not installed. Using regex fallback.", file=sys.stderr)
+        print("  [extractor] WARNING: anthropic package not installed. Using regex fallback.", file=sys.stderr)
         return None
 
 
@@ -153,10 +155,11 @@ def _extract_with_claude(pdf_path):
         return data
 
     except json.JSONDecodeError as e:
-        print(f"  Warning: Claude returned invalid JSON: {e}", file=sys.stderr)
+        print(f"  [extractor] ERROR: Claude returned invalid JSON: {e}", file=sys.stderr)
+        print(f"  [extractor] Raw response: {response_text[:500]}", file=sys.stderr)
         return None
     except Exception as e:
-        print(f"  Warning: Claude API call failed: {e}", file=sys.stderr)
+        print(f"  [extractor] ERROR: Claude API call failed: {type(e).__name__}: {e}", file=sys.stderr)
         return None
 
 

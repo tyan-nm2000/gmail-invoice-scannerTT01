@@ -41,6 +41,17 @@ jobs:
           echo '${{ secrets.GOOGLE_CREDENTIALS }}' > credentials.json
           echo '${{ secrets.GOOGLE_TOKEN }}' > token.json
 
+      - name: Verify secrets
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          if [ -z "$ANTHROPIC_API_KEY" ]; then
+            echo "::warning::ANTHROPIC_API_KEY secret is not set. Claude AI extraction will be skipped."
+          else
+            echo "ANTHROPIC_API_KEY is set (${#ANTHROPIC_API_KEY} chars)"
+          fi
+          python -c "import anthropic; print('anthropic SDK version:', anthropic.__version__)"
+
       - name: Run invoice scanner
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
