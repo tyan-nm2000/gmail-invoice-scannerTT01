@@ -1,0 +1,24 @@
+# Credentials
+credentials.json
+token.json
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+.eggs/
+*.egg
+venv/
+.venv/
+
+# Downloaded attachments
+attachments/
+
+# Downloaded attachments only (output/ is tracked for GitHub Actions results)
+# output/
+
+# IDE
+.vscode/
+.idea/
