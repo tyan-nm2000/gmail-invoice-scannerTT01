@@ -187,7 +187,75 @@ def _save_results(results, output_cfg):
     with open(json_path, "w", encoding="utf-8") as f:
         json.dump(combined, f, indent=2, default=str)
 
-    print(f"\nResults saved to: {csv_path}, {json_path}")
+    # Excel
+    excel_path = output_cfg.get("excel_path", "output/invoices.xlsx")
+    if excel_path:
+        _save_excel(results, excel_path, append)
+
+    print(f"\nResults saved to: {csv_path}, {json_path}, {excel_path}")
+
+
+EXCEL_HEADERS = [
+    "Vendor", "Vendor Country", "Vendor Province / State",
+    "Invoice #", "Vendor Code", "Invoice Date", "Due Date",
+    "Subtotal", "GST / TPS (5%)", "QST / TVQ (9.975%)", "HST",
+    "Total Amount", "Currency", "Bill To", "Description",
+    "Line Items", "Confidence",
+    "Email Subject", "Sender", "PDF Filename", "Email Date", "Logged At",
+]
+
+
+def _save_excel(results, excel_path, append=True):
+    """Save results to a formatted Excel (.xlsx) file."""
+    from openpyxl import Workbook, load_workbook
+    from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+
+    os.makedirs(os.path.dirname(excel_path) or ".", exist_ok=True)
+
+    header_font = Font(bold=True, color="FFFFFF", size=11)
+    header_fill = PatternFill(start_color="1F4E79", end_color="1F4E79", fill_type="solid")
+    header_align = Alignment(horizontal="center", vertical="center", wrap_text=True)
+    thin_border = Border(
+        left=Side(style="thin"), right=Side(style="thin"),
+        top=Side(style="thin"), bottom=Side(style="thin"),
+    )
+
+    if append and os.path.exists(excel_path):
+        wb = load_workbook(excel_path)
+        ws = wb.active
+        start_row = ws.max_row + 1
+    else:
+        wb = Workbook()
+        ws = wb.active
+        ws.title = "Invoice Scan Results"
+        for col_idx, header in enumerate(EXCEL_HEADERS, 1):
+            cell = ws.cell(row=1, column=col_idx, value=header)
+            cell.font = header_font
+            cell.fill = header_fill
+            cell.alignment = header_align
+            cell.border = thin_border
+        ws.freeze_panes = "A2"
+        start_row = 2
+
+    for row_idx, record in enumerate(results, start_row):
+        for col_idx, field in enumerate(OUTPUT_FIELDS, 1):
+            val = record.get(field, "")
+            if field == "line_items" and isinstance(val, list):
+                val = json.dumps(val)
+            cell = ws.cell(row=row_idx, column=col_idx, value=val or "")
+            cell.alignment = Alignment(vertical="top", wrap_text=True)
+            cell.border = thin_border
+
+    # Auto-size columns
+    for col_idx, header in enumerate(EXCEL_HEADERS, 1):
+        max_len = len(header)
+        for row in ws.iter_rows(min_row=2, min_col=col_idx, max_col=col_idx):
+            for cell in row:
+                if cell.value:
+                    max_len = max(max_len, min(len(str(cell.value)), 50))
+        ws.column_dimensions[ws.cell(row=1, column=col_idx).column_letter].width = max_len + 3
+
+    wb.save(excel_path)
 
 
 def _create_scheduler(config):

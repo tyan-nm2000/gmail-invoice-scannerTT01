@@ -26,6 +26,7 @@ DEFAULT_CONFIG = {
     "output": {
         "csv_path": "output/invoices.csv",
         "json_path": "output/invoices.json",
+        "excel_path": "output/invoices.xlsx",
         "append_mode": True,
     },
 }

@@ -51,7 +51,78 @@ def parse_args():
         default=None,
         help="Path for JSON output file (optional)",
     )
+    parser.add_argument(
+        "--excel", "-e",
+        default=None,
+        help="Path for Excel (.xlsx) output file (optional)",
+    )
     return parser.parse_args()
+
+
+EXCEL_HEADERS = [
+    "Vendor", "Vendor Country", "Vendor Province / State",
+    "Invoice #", "Vendor Code", "Invoice Date", "Due Date",
+    "Subtotal", "GST / TPS (5%)", "QST / TVQ (9.975%)", "HST",
+    "Total Amount", "Currency", "Bill To", "Description",
+    "Line Items", "Confidence",
+    "Email Subject", "Sender", "PDF Filename", "Email Date", "Logged At",
+]
+
+
+def _save_excel(results, fields, excel_path):
+    """Save results to a formatted Excel (.xlsx) file."""
+    from openpyxl import Workbook
+    from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+
+    os.makedirs(os.path.dirname(excel_path) or ".", exist_ok=True)
+
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Invoice Scan Results"
+
+    # Header styling
+    header_font = Font(bold=True, color="FFFFFF", size=11)
+    header_fill = PatternFill(start_color="1F4E79", end_color="1F4E79", fill_type="solid")
+    header_align = Alignment(horizontal="center", vertical="center", wrap_text=True)
+    thin_border = Border(
+        left=Side(style="thin"),
+        right=Side(style="thin"),
+        top=Side(style="thin"),
+        bottom=Side(style="thin"),
+    )
+
+    # Write headers
+    for col_idx, header in enumerate(EXCEL_HEADERS, 1):
+        cell = ws.cell(row=1, column=col_idx, value=header)
+        cell.font = header_font
+        cell.fill = header_fill
+        cell.alignment = header_align
+        cell.border = thin_border
+
+    # Write data rows
+    for row_idx, record in enumerate(results, 2):
+        for col_idx, field in enumerate(fields, 1):
+            val = record.get(field, "")
+            if field == "line_items" and isinstance(val, list):
+                val = json.dumps(val)
+            cell = ws.cell(row=row_idx, column=col_idx, value=val or "")
+            cell.alignment = Alignment(vertical="top", wrap_text=True)
+            cell.border = thin_border
+
+    # Auto-size columns (approximate)
+    for col_idx, header in enumerate(EXCEL_HEADERS, 1):
+        max_len = len(header)
+        for row in ws.iter_rows(min_row=2, min_col=col_idx, max_col=col_idx):
+            for cell in row:
+                if cell.value:
+                    max_len = max(max_len, min(len(str(cell.value)), 50))
+        ws.column_dimensions[ws.cell(row=1, column=col_idx).column_letter].width = max_len + 3
+
+    # Freeze header row
+    ws.freeze_panes = "A2"
+
+    wb.save(excel_path)
+    print(f"\nExcel report saved to: {excel_path}")
 
 
 def main():
@@ -173,6 +244,10 @@ def main():
         with open(args.json_output, "w", encoding="utf-8") as f:
             json.dump(clean_results, f, indent=2, default=str)
         print(f"JSON report saved to: {args.json_output}")
+
+    # Excel output
+    if args.excel:
+        _save_excel(results, summary_fields, args.excel)
 
     print(f"\nDone. Processed {len(results)} invoice(s) from {len(messages)} email(s).")
 
