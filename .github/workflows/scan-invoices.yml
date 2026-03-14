@@ -1,7 +1,12 @@
 name: Scan Gmail Invoices
 
 on:
-  # Run manually from GitHub Actions tab or via gh CLI
+  # Trigger via git push: run_scan.py updates .scan_trigger and pushes
+  push:
+    paths:
+      - ".scan_trigger"
+
+  # Run manually from GitHub Actions tab
   workflow_dispatch:
     inputs:
       max_emails:
@@ -30,6 +35,16 @@ jobs:
         with:
           ref: ${{ github.ref }}
 
+      - name: Read scan parameters from trigger file
+        id: params
+        run: |
+          if [ -f .scan_trigger ]; then
+            MAX_EMAILS=$(grep '^max_emails=' .scan_trigger | cut -d= -f2 || echo "25")
+            QUERY=$(grep '^query=' .scan_trigger | cut -d= -f2- || echo "has:attachment filename:pdf")
+          fi
+          echo "max_emails=${MAX_EMAILS:-${{ github.event.inputs.max_emails || '25' }}}" >> $GITHUB_OUTPUT
+          echo "query=${QUERY:-${{ github.event.inputs.query || 'has:attachment filename:pdf' }}}" >> $GITHUB_OUTPUT
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -48,8 +63,8 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
           python main.py \
-            --max-emails ${{ github.event.inputs.max_emails || '25' }} \
-            --query "${{ github.event.inputs.query || 'has:attachment filename:pdf' }}" \
+            --max-emails ${{ steps.params.outputs.max_emails }} \
+            --query "${{ steps.params.outputs.query }}" \
             --output output/invoices.csv \
             --json output/invoices.json \
             --excel output/invoices.xlsx
