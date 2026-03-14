@@ -24,21 +24,28 @@ import pdfplumber
 EXTRACTION_PROMPT = """\
 You are an expert invoice data extractor. Analyze the invoice content provided and extract all relevant information.
 
-Return a JSON object with exactly these fields (use null for any field you cannot find):
+First, determine if this document is an invoice. If it is NOT an invoice (e.g. a receipt, statement, letter, or unrelated PDF), return:
+{"is_invoice": false, "confidence": "high"}
+
+If it IS an invoice, return a JSON object with exactly these fields (use null for any field you cannot find):
 
 {
+  "is_invoice": true,
+  "vendor": "string or null (company name that issued the invoice)",
+  "vendor_country": "string or null (country of the vendor)",
+  "vendor_province_state": "string or null (province or state of the vendor)",
   "invoice_number": "string or null",
+  "vendor_code": "string or null (vendor/supplier code or account number if shown)",
   "invoice_date": "string or null (keep original date format)",
   "due_date": "string or null",
-  "vendor_name": "string or null (the company that issued/sent the invoice)",
-  "vendor_address": "string or null",
-  "buyer_name": "string or null (the company/person being billed)",
-  "buyer_address": "string or null",
   "subtotal": "string or null (amount before tax)",
-  "tax_amount": "string or null",
-  "total_amount": "string or null (final amount due)",
-  "currency": "string or null (e.g. USD, EUR, GBP)",
-  "payment_terms": "string or null (e.g. Net 30, Due on receipt)",
+  "gst_tps_5": "string or null (GST / TPS at 5% — Canadian federal tax)",
+  "qst_tvq_9975": "string or null (QST / TVQ at 9.975% — Quebec provincial tax)",
+  "hst": "string or null (HST — Harmonized Sales Tax, used in some Canadian provinces)",
+  "total_amount": "string or null (final total amount due)",
+  "currency": "string or null (e.g. CAD, USD, EUR)",
+  "bill_to": "string or null (full billing address / who is being billed)",
+  "description": "string or null (general description or summary of what the invoice is for)",
   "line_items": [
     {
       "description": "string",
@@ -47,14 +54,15 @@ Return a JSON object with exactly these fields (use null for any field you canno
       "amount": "string"
     }
   ],
-  "notes": "string or null (any additional relevant notes or references)"
+  "confidence": "high, medium, or low (your confidence in the extraction accuracy)"
 }
 
 IMPORTANT:
 - Return ONLY the JSON object, no markdown formatting, no code blocks.
 - Extract amounts as strings preserving the original formatting (e.g. "1,234.56").
-- If the document is not an invoice (e.g. a receipt, statement, or unrelated PDF), still extract whatever financial data you can and set invoice_number to null.
+- For tax fields: if the invoice shows tax but doesn't label it as GST/QST/HST specifically, use your best judgement based on the tax rate and vendor location.
 - For line_items, include every individual item/service listed.
+- Set confidence to "high" if the invoice is clear and all key fields are readable, "medium" if some fields are uncertain, "low" if the document is hard to read or ambiguous.
 """
 
 
@@ -148,6 +156,17 @@ def _extract_with_claude(pdf_path):
             response_text = re.sub(r"\s*```$", "", response_text)
 
         data = json.loads(response_text)
+
+        # If Claude determined this is not an invoice, mark it
+        if not data.get("is_invoice", True):
+            return {
+                "file": pdf_path,
+                "extraction_method": "claude-ai",
+                "is_invoice": False,
+                "confidence": data.get("confidence", "high"),
+                "error": "Document is not an invoice",
+            }
+
         data["file"] = pdf_path
         data["extraction_method"] = "claude-ai"
         return data

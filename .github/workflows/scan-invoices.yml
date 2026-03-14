@@ -12,8 +12,13 @@ on:
         description: "Gmail search query"
         required: false
         default: "has:attachment filename:pdf"
+      schedule_interval:
+        description: "Schedule interval in minutes (0 = one-time run)"
+        required: false
+        default: "0"
 
-  # Run automatically every day at 8 AM UTC
+  # Default recurring schedule — runs every day at 8 AM UTC
+  # Users can also modify the schedule via scan_config.json
   schedule:
     - cron: "0 8 * * *"
 

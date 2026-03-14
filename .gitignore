@@ -19,6 +19,9 @@ attachments/
 # Downloaded attachments only (output/ is tracked for GitHub Actions results)
 # output/
 
+# Local schedule config (user-specific)
+scan_config.json
+
 # IDE
 .vscode/
 .idea/

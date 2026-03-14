@@ -16,6 +16,7 @@ import csv
 import json
 import os
 import sys
+from datetime import datetime, timezone
 
 from tabulate import tabulate
 
@@ -89,22 +90,33 @@ def main():
             print("  No PDF attachments found — skipping.")
             continue
 
+        scan_time = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
+
         for pdf_path in pdf_paths:
             print(f"  Extracting data from: {os.path.basename(pdf_path)}")
             invoice_data = extract_invoice_data(pdf_path)
+
+            # Skip non-invoice PDFs
+            if invoice_data.get("is_invoice") is False:
+                print(f"    Skipped: not an invoice")
+                continue
+
+            # Add email/scan metadata
             invoice_data["email_subject"] = metadata["subject"]
-            invoice_data["email_from"] = metadata["from"]
+            invoice_data["sender"] = metadata["from"]
             invoice_data["email_date"] = metadata["date"]
+            invoice_data["pdf_filename"] = os.path.basename(pdf_path)
+            invoice_data["logged_at"] = scan_time
             results.append(invoice_data)
 
             method = invoice_data.get("extraction_method", "unknown")
             if invoice_data.get("error"):
-                print(f"    ⚠ {invoice_data['error']}")
+                print(f"    Warning: {invoice_data['error']}")
             else:
                 print(f"    [{method}]")
                 print(f"    Invoice #: {invoice_data.get('invoice_number', 'N/A')}")
-                if invoice_data.get("vendor_name"):
-                    print(f"    Vendor:    {invoice_data['vendor_name']}")
+                if invoice_data.get("vendor"):
+                    print(f"    Vendor:    {invoice_data['vendor']}")
                 print(f"    Date:      {invoice_data.get('invoice_date', 'N/A')}")
                 print(f"    Total:     {invoice_data.get('total_amount', 'N/A')}")
                 if invoice_data.get("line_items"):
@@ -117,9 +129,12 @@ def main():
 
     # ── Output results ────────────────────────────────────────────────────────
     summary_fields = [
-        "file", "email_from", "email_date", "email_subject",
-        "vendor_name", "invoice_number", "invoice_date", "due_date",
-        "total_amount", "currency", "extraction_method",
+        "vendor", "vendor_country", "vendor_province_state",
+        "invoice_number", "vendor_code", "invoice_date", "due_date",
+        "subtotal", "gst_tps_5", "qst_tvq_9975", "hst",
+        "total_amount", "currency", "bill_to", "description",
+        "line_items", "confidence",
+        "email_subject", "sender", "pdf_filename", "email_date", "logged_at",
     ]
 
     # Console table
@@ -132,10 +147,19 @@ def main():
     # CSV output
     if args.output:
         os.makedirs(os.path.dirname(args.output) or ".", exist_ok=True)
+        csv_rows = []
+        for r in results:
+            row = {}
+            for f in summary_fields:
+                val = r.get(f, "")
+                if f == "line_items" and isinstance(val, list):
+                    val = json.dumps(val)
+                row[f] = val or ""
+            csv_rows.append(row)
         with open(args.output, "w", newline="", encoding="utf-8") as f:
             writer = csv.DictWriter(f, fieldnames=summary_fields, extrasaction="ignore")
             writer.writeheader()
-            writer.writerows(results)
+            writer.writerows(csv_rows)
         print(f"\nCSV report saved to: {args.output}")
 
     # JSON output

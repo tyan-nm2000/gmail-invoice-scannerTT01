@@ -26,7 +26,7 @@ import time
 
 REPO = "tyan-nm2000/gmail-invoice-scannerTT01"
 WORKFLOW_FILE = "scan-invoices.yml"
-BRANCH = "claude/email-invoice-extraction-YaOZp"
+BRANCH = "claude/email-scanner-scheduler-5AZZv"
 
 
 def run_cmd(cmd, check=True):
