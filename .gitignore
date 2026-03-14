@@ -16,8 +16,8 @@ venv/
 # Downloaded attachments
 attachments/
 
-# Output
-output/
+# Downloaded attachments only (output/ is tracked for GitHub Actions results)
+# output/
 
 # IDE
 .vscode/

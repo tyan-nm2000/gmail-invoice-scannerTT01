@@ -1,0 +1,77 @@
+name: Scan Gmail Invoices
+
+on:
+  # Run manually from GitHub Actions tab
+  workflow_dispatch:
+    inputs:
+      max_emails:
+        description: "Maximum number of emails to scan"
+        required: false
+        default: "25"
+      query:
+        description: "Gmail search query"
+        required: false
+        default: "has:attachment filename:pdf"
+
+  # Run automatically every day at 8 AM UTC
+  schedule:
+    - cron: "0 8 * * *"
+
+permissions:
+  contents: write
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Restore credentials from secrets
+        run: |
+          echo '${{ secrets.GOOGLE_CREDENTIALS }}' > credentials.json
+          echo '${{ secrets.GOOGLE_TOKEN }}' > token.json
+
+      - name: Run invoice scanner
+        run: |
+          python main.py \
+            --max-emails ${{ github.event.inputs.max_emails || '25' }} \
+            --query "${{ github.event.inputs.query || 'has:attachment filename:pdf' }}" \
+            --output output/invoices.csv \
+            --json output/invoices.json
+
+      - name: Save updated token
+        if: always()
+        run: |
+          if [ -f token.json ]; then
+            echo "TOKEN_UPDATED=true" >> $GITHUB_ENV
+            echo "::notice::Token was refreshed. Update GOOGLE_TOKEN secret if scan ran successfully."
+          fi
+
+      - name: Upload results as artifact
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: invoice-results-${{ github.run_number }}
+          path: |
+            output/invoices.csv
+            output/invoices.json
+          retention-days: 90
+
+      - name: Commit results to repo
+        if: success()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add output/invoices.csv output/invoices.json
+          git diff --cached --quiet || git commit -m "Update invoice scan results [$(date -u +%Y-%m-%d)]"
+          git push

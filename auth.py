@@ -2,9 +2,15 @@
 
 Handles OAuth 2.0 authentication flow for accessing Gmail.
 Stores and refreshes tokens automatically.
+
+Supports three modes:
+  1. Interactive (local machine) — opens browser for OAuth consent.
+  2. Headless (cloud/SSH) — prints URL, user pastes redirect URL back.
+  3. Non-interactive (CI/GitHub Actions) — uses pre-existing token.json only.
 """
 
 import os
+import sys
 import urllib.parse
 
 import certifi
@@ -28,15 +34,12 @@ REDIRECT_URI = "http://localhost:1"
 def get_gmail_service():
     """Authenticate with Gmail API and return a service object.
 
-    On first run, prints a URL for the user to visit and asks them to paste
-    back the authorization code. Subsequent runs reuse the saved token,
-    refreshing it automatically when expired.
-
     Returns:
         googleapiclient.discovery.Resource: Authorised Gmail API service.
 
     Raises:
         FileNotFoundError: If credentials.json is missing.
+        RuntimeError: If running non-interactively without a valid token.
     """
     if not os.path.exists(CREDENTIALS_PATH):
         raise FileNotFoundError(
@@ -54,38 +57,51 @@ def get_gmail_service():
     if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(Request())
+        elif not sys.stdin.isatty():
+            # Non-interactive mode (CI/GitHub Actions) — cannot prompt user
+            raise RuntimeError(
+                "No valid token.json found and running non-interactively. "
+                "Run the scanner locally first to generate a token, then store "
+                "it as the GOOGLE_TOKEN GitHub secret."
+            )
         else:
+            # Interactive / headless mode
             flow = InstalledAppFlow.from_client_secrets_file(
                 CREDENTIALS_PATH, SCOPES, redirect_uri=REDIRECT_URI,
             )
-            auth_url, _ = flow.authorization_url(prompt="consent")
 
-            print("\n" + "=" * 60)
-            print("AUTHORIZATION REQUIRED")
-            print("=" * 60)
-            print("\n1. Open this URL in your browser:\n")
-            print(f"   {auth_url}")
-            print("\n2. Sign in with your Google account and click 'Allow'.")
-            print("\n3. You will be redirected to a page that FAILS to load.")
-            print("   That's OK! Copy the ENTIRE URL from the browser address bar.")
-            print("   It will look like: http://localhost:1/?code=4/0A...&scope=...")
-            print("\n4. Paste that full URL below:\n")
+            # Try browser-based flow first (works on local machines)
+            try:
+                creds = flow.run_local_server(port=0)
+            except Exception:
+                # Fallback: headless manual flow
+                auth_url, _ = flow.authorization_url(prompt="consent")
 
-            redirect_response = input("Paste URL here: ").strip()
+                print("\n" + "=" * 60)
+                print("AUTHORIZATION REQUIRED")
+                print("=" * 60)
+                print("\n1. Open this URL in your browser:\n")
+                print(f"   {auth_url}")
+                print("\n2. Sign in with your Google account and click 'Allow'.")
+                print("\n3. You will be redirected to a page that FAILS to load.")
+                print("   That's OK! Copy the ENTIRE URL from the browser address bar.")
+                print("   It will look like: http://localhost:1/?code=4/0A...&scope=...")
+                print("\n4. Paste that full URL below:\n")
 
-            # Extract the authorization code from the redirect URL
-            parsed = urllib.parse.urlparse(redirect_response)
-            query_params = urllib.parse.parse_qs(parsed.query)
-            code = query_params.get("code", [None])[0]
+                redirect_response = input("Paste URL here: ").strip()
 
-            if not code:
-                raise ValueError(
-                    "Could not extract authorization code from the URL. "
-                    "Make sure you pasted the full redirect URL."
-                )
+                parsed = urllib.parse.urlparse(redirect_response)
+                query_params = urllib.parse.parse_qs(parsed.query)
+                code = query_params.get("code", [None])[0]
 
-            flow.fetch_token(code=code)
-            creds = flow.credentials
+                if not code:
+                    raise ValueError(
+                        "Could not extract authorization code from the URL. "
+                        "Make sure you pasted the full redirect URL."
+                    )
+
+                flow.fetch_token(code=code)
+                creds = flow.credentials
 
         with open(TOKEN_PATH, "w") as token_file:
             token_file.write(creds.to_json())
@@ -95,7 +111,6 @@ def get_gmail_service():
     try:
         http = httplib2.Http(ca_certs=certifi.where())
         authorized_http = AuthorizedHttp(creds, http=http)
-        # Quick connectivity check
         authorized_http.request("https://gmail.googleapis.com/$discovery/rest?version=v1")
     except Exception:
         http = httplib2.Http(disable_ssl_certificate_validation=True)
