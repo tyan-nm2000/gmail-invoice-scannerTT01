@@ -1,0 +1,354 @@
+[
+  {
+    "file": "attachments/19cea623_V00011 (9).pdf",
+    "extraction_method": "regex-fallback",
+    "error": "No extractable text found (scanned image PDF?)",
+    "email_subject": "inquiry",
+    "email_from": "TAO YAN <yantao789@gmail.com>",
+    "email_date": "Fri, 13 Mar 2026 23:26:56 -0400"
+  },
+  {
+    "file": "attachments/19cea623_V00011 (8).pdf",
+    "extraction_method": "regex-fallback",
+    "invoice_number": null,
+    "invoice_date": null,
+    "due_date": null,
+    "total_amount": "0",
+    "email_subject": "inquiry",
+    "email_from": "TAO YAN <yantao789@gmail.com>",
+    "email_date": "Fri, 13 Mar 2026 23:26:56 -0400"
+  },
+  {
+    "file": "attachments/19cea623_V00011 (7).pdf",
+    "extraction_method": "regex-fallback",
+    "invoice_number": null,
+    "invoice_date": "08/08/2024",
+    "due_date": null,
+    "total_amount": "10,318.00",
+    "tables": [
+      [
+        [
+          "Article",
+          "Quantit\u00e9",
+          "Unit\u00e9",
+          "Description",
+          "Taxe",
+          null,
+          "Prix unit.",
+          null,
+          "Montant"
+        ],
+        [
+          "SVR303\n\u00c9quipement M.C.F.\n\u00c9quipement M.C.F.",
+          "11\nEquipment\nEquipment",
+          "Inc. GST: #\nInc. QST: #",
+          "Supply: Blue Giant Hydraulic Vehicle Restarint\nVoltage 110/1/60\nBlue Genius III Combo Control Panel\nInstallation\nAs per quote: # 24-3050A\nMCF Ref: # 49614, 49615\nProject: Darren McCarrick\nSN: 517931.1-01 to 517931.1-11\nVotre bon de commande # 35846\nSous-total:\nGQ - TPS 5%, TVQ 9.975%\nGST\nQST\n10359 1947 RT\n1002206311",
+          "GQ\nGQ",
+          null,
+          "5,237.00\n938.00",
+          null,
+          "10,318.00\n10,318.00\n515.90\n1,029.22"
+        ],
+        [
+          "Exp\u00e9di\u00e9 par: No. Suivi:\nConditions : Net 30. \u00c9chu 09/07/2024.\nRemarques:\nVendu par: McCarrick, Darren",
+          null,
+          null,
+          null,
+          null,
+          "Montant total",
+          null,
+          "11,863.12",
+          null
+        ]
+      ]
+    ],
+    "email_subject": "inquiry",
+    "email_from": "TAO YAN <yantao789@gmail.com>",
+    "email_date": "Fri, 13 Mar 2026 23:26:56 -0400"
+  },
+  {
+    "file": "attachments/19cea623_V00011 (6).pdf",
+    "extraction_method": "regex-fallback",
+    "invoice_number": "d",
+    "invoice_date": null,
+    "due_date": null,
+    "total_amount": "07",
+    "tables": [
+      [
+        [
+          "No. facture / Invoice number\n0091313",
+          null
+        ],
+        [
+          "Date\n14-AVR-2025",
+          null
+        ],
+        [
+          "Code client / Customer code\n370",
+          "Page\n1"
+        ],
+        [
+          "Modalit\u00e9s de paiement /\nTerms of payment\nIMM\u00c9DIATEMENT",
+          null
+        ]
+      ],
+      [
+        [
+          "Date",
+          "Remorque/\nTrailor",
+          "Employ\u00e9 /\nEmployee",
+          null,
+          "Probill",
+          "B/L",
+          "F.Route/\nT.sheet",
+          "Cat\u00e9gorie/\nCategory",
+          "Qt\u00e9 /\nQty",
+          "Unit\u00e9/\nUnit",
+          "Taux /\nRate",
+          null,
+          "Total"
+        ],
+        [
+          "07-AVR-2025\n07-AVR-2025\n08-AVR-2025\n08-AVR-2025\n11-AVR-2025",
+          "7785132\n5768424\n.\n.\n.",
+          "OSPINA HECTOR FABIO\nBARRY ABOUBACAR\nRONDEAU ALEXIS\nRONDEAU ALEXIS\nRONDEAU ALEXIS",
+          null,
+          "PO 38293\nPO 37601\npo36677\npo37897",
+          "",
+          "",
+          "DIVERS\nDIVERS\nDIVERS\nDIVERS\nDIVERS",
+          "1015\n1965\n1100\n1100\n1600",
+          "1.00\n1.00\n1.00\n1.00\n1.00",
+          "$230.0000\n$230.0000\n$230.0000\n$230.0000\n$230.0000",
+          null,
+          "$230.00\n$230.00\n$230.00\n$230.00\n$230.00"
+        ],
+        [
+          "# de permis d'agence : AP-2404226\nDivision de Corporation GoodJob inc",
+          null,
+          null,
+          "SOUS-TOTAL / SUBTOTAL\nFRAIS ADMINISTRATION FEES\nB\u00c9N\u00c9FICES MARGINAUX / FRINGE BENEFITS\nTOTAL TAXABLE\nT.P.S. # 770104065 :\nT.V.Q./Q.S.T. # 1228231955 :\nTOTAL",
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          "$1,150.00\n$0.00\n$1,150.00\n$57.50\n$114.71",
+          null
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          "$1,322.21",
+          null
+        ]
+      ]
+    ],
+    "email_subject": "inquiry",
+    "email_from": "TAO YAN <yantao789@gmail.com>",
+    "email_date": "Fri, 13 Mar 2026 23:26:56 -0400"
+  },
+  {
+    "file": "attachments/19cea623_V00011 (1).pdf",
+    "extraction_method": "regex-fallback",
+    "error": "No extractable text found (scanned image PDF?)",
+    "email_subject": "inquiry",
+    "email_from": "TAO YAN <yantao789@gmail.com>",
+    "email_date": "Fri, 13 Mar 2026 23:26:56 -0400"
+  },
+  {
+    "file": "attachments/19cea61a_V00011 (4).pdf",
+    "extraction_method": "regex-fallback",
+    "invoice_number": null,
+    "invoice_date": null,
+    "due_date": null,
+    "total_amount": null,
+    "email_subject": "contact test 01",
+    "email_from": "TAO YAN <yantao789@gmail.com>",
+    "email_date": "Fri, 13 Mar 2026 23:26:18 -0400"
+  },
+  {
+    "file": "attachments/19cea61a_V00011 (3).pdf",
+    "extraction_method": "regex-fallback",
+    "error": "No extractable text found (scanned image PDF?)",
+    "email_subject": "contact test 01",
+    "email_from": "TAO YAN <yantao789@gmail.com>",
+    "email_date": "Fri, 13 Mar 2026 23:26:18 -0400"
+  },
+  {
+    "file": "attachments/19cea61a_V00011 (5).pdf",
+    "extraction_method": "regex-fallback",
+    "error": "No extractable text found (scanned image PDF?)",
+    "email_subject": "contact test 01",
+    "email_from": "TAO YAN <yantao789@gmail.com>",
+    "email_date": "Fri, 13 Mar 2026 23:26:18 -0400"
+  },
+  {
+    "file": "attachments/19cea61a_V00011 (2).pdf",
+    "extraction_method": "regex-fallback",
+    "error": "No extractable text found (scanned image PDF?)",
+    "email_subject": "contact test 01",
+    "email_from": "TAO YAN <yantao789@gmail.com>",
+    "email_date": "Fri, 13 Mar 2026 23:26:18 -0400"
+  },
+  {
+    "file": "attachments/19cea3f5_0091313.pdf",
+    "extraction_method": "regex-fallback",
+    "invoice_number": "d",
+    "invoice_date": null,
+    "due_date": null,
+    "total_amount": "07",
+    "tables": [
+      [
+        [
+          "No. facture / Invoice number\n0091313",
+          null
+        ],
+        [
+          "Date\n14-AVR-2025",
+          null
+        ],
+        [
+          "Code client / Customer code\n370",
+          "Page\n1"
+        ],
+        [
+          "Modalit\u00e9s de paiement /\nTerms of payment\nIMM\u00c9DIATEMENT",
+          null
+        ]
+      ],
+      [
+        [
+          "Date",
+          "Remorque/\nTrailor",
+          "Employ\u00e9 /\nEmployee",
+          null,
+          "Probill",
+          "B/L",
+          "F.Route/\nT.sheet",
+          "Cat\u00e9gorie/\nCategory",
+          "Qt\u00e9 /\nQty",
+          "Unit\u00e9/\nUnit",
+          "Taux /\nRate",
+          null,
+          "Total"
+        ],
+        [
+          "07-AVR-2025\n07-AVR-2025\n08-AVR-2025\n08-AVR-2025\n11-AVR-2025",
+          "7785132\n5768424\n.\n.\n.",
+          "OSPINA HECTOR FABIO\nBARRY ABOUBACAR\nRONDEAU ALEXIS\nRONDEAU ALEXIS\nRONDEAU ALEXIS",
+          null,
+          "PO 38293\nPO 37601\npo36677\npo37897",
+          "",
+          "",
+          "DIVERS\nDIVERS\nDIVERS\nDIVERS\nDIVERS",
+          "1015\n1965\n1100\n1100\n1600",
+          "1.00\n1.00\n1.00\n1.00\n1.00",
+          "$230.0000\n$230.0000\n$230.0000\n$230.0000\n$230.0000",
+          null,
+          "$230.00\n$230.00\n$230.00\n$230.00\n$230.00"
+        ],
+        [
+          "# de permis d'agence : AP-2404226\nDivision de Corporation GoodJob inc",
+          null,
+          null,
+          "SOUS-TOTAL / SUBTOTAL\nFRAIS ADMINISTRATION FEES\nB\u00c9N\u00c9FICES MARGINAUX / FRINGE BENEFITS\nTOTAL TAXABLE\nT.P.S. # 770104065 :\nT.V.Q./Q.S.T. # 1228231955 :\nTOTAL",
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          "$1,150.00\n$0.00\n$1,150.00\n$57.50\n$114.71",
+          null
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          "$1,322.21",
+          null
+        ]
+      ]
+    ],
+    "email_subject": "contact",
+    "email_from": "TAO YAN <yantao789@gmail.com>",
+    "email_date": "Fri, 13 Mar 2026 22:48:53 -0400"
+  },
+  {
+    "file": "attachments/19cd568a_JE#810189 V03389-TELUS SANTE $3,351.25.pdf",
+    "extraction_method": "regex-fallback",
+    "error": "No extractable text found (scanned image PDF?)",
+    "email_subject": "Fwd: payment",
+    "email_from": "Michael <donglan.myan@gmail.com>",
+    "email_date": "Mon, 9 Mar 2026 21:42:10 -0400"
+  },
+  {
+    "file": "attachments/19cd55ff_JE#810189 V03389-TELUS SANTE $3,351.25.pdf",
+    "extraction_method": "regex-fallback",
+    "error": "No extractable text found (scanned image PDF?)",
+    "email_subject": "invoice for payment",
+    "email_from": "TAO YAN <yantao789@gmail.com>",
+    "email_date": "Mon, 9 Mar 2026 21:32:28 -0400"
+  },
+  {
+    "file": "attachments/19cd5563_JE#810189 V03389-TELUS SANTE $3,351.25.pdf",
+    "extraction_method": "regex-fallback",
+    "error": "No extractable text found (scanned image PDF?)",
+    "email_subject": "Invoice for payment",
+    "email_from": "TAO YAN <yantao789@gmail.com>",
+    "email_date": "Mon, 9 Mar 2026 21:21:49 -0400"
+  },
+  {
+    "file": "attachments/19cd5549_JE#810189 V03389-TELUS SANTE $3,351.25.pdf",
+    "extraction_method": "regex-fallback",
+    "error": "No extractable text found (scanned image PDF?)",
+    "email_subject": "payment",
+    "email_from": "TAO YAN <yantao789@gmail.com>",
+    "email_date": "Mon, 9 Mar 2026 21:20:02 -0400"
+  },
+  {
+    "file": "attachments/19cd49c5_JE#810189 V03389-TELUS SANTE $3,351.25.pdf",
+    "extraction_method": "regex-fallback",
+    "error": "No extractable text found (scanned image PDF?)",
+    "email_subject": "invoice for payment",
+    "email_from": "TAO YAN <yantao789@gmail.com>",
+    "email_date": "Mon, 9 Mar 2026 17:58:48 -0400"
+  },
+  {
+    "file": "attachments/19cd47d9_JE#810189 V03389-TELUS SANTE $3,351.25.pdf",
+    "extraction_method": "regex-fallback",
+    "error": "No extractable text found (scanned image PDF?)",
+    "email_subject": "hellow",
+    "email_from": "TAO YAN <yantao789@gmail.com>",
+    "email_date": "Mon, 9 Mar 2026 17:25:13 -0400"
+  },
+  {
+    "file": "attachments/19cd47d5_JE#805272 V00076-KARSHRUTH $250.00.pdf",
+    "extraction_method": "regex-fallback",
+    "error": "No extractable text found (scanned image PDF?)",
+    "email_subject": "invoice for karshruth",
+    "email_from": "TAO YAN <yantao789@gmail.com>",
+    "email_date": "Mon, 9 Mar 2026 17:24:54 -0400"
+  }
+]

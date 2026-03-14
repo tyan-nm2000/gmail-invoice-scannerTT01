@@ -1,0 +1,18 @@
+file,email_from,email_date,email_subject,vendor_name,invoice_number,invoice_date,due_date,total_amount,currency,extraction_method
+attachments/19cea623_V00011 (9).pdf,TAO YAN <yantao789@gmail.com>,"Fri, 13 Mar 2026 23:26:56 -0400",inquiry,,,,,,,regex-fallback
+attachments/19cea623_V00011 (8).pdf,TAO YAN <yantao789@gmail.com>,"Fri, 13 Mar 2026 23:26:56 -0400",inquiry,,,,,0,,regex-fallback
+attachments/19cea623_V00011 (7).pdf,TAO YAN <yantao789@gmail.com>,"Fri, 13 Mar 2026 23:26:56 -0400",inquiry,,,08/08/2024,,"10,318.00",,regex-fallback
+attachments/19cea623_V00011 (6).pdf,TAO YAN <yantao789@gmail.com>,"Fri, 13 Mar 2026 23:26:56 -0400",inquiry,,d,,,07,,regex-fallback
+attachments/19cea623_V00011 (1).pdf,TAO YAN <yantao789@gmail.com>,"Fri, 13 Mar 2026 23:26:56 -0400",inquiry,,,,,,,regex-fallback
+attachments/19cea61a_V00011 (4).pdf,TAO YAN <yantao789@gmail.com>,"Fri, 13 Mar 2026 23:26:18 -0400",contact test 01,,,,,,,regex-fallback
+attachments/19cea61a_V00011 (3).pdf,TAO YAN <yantao789@gmail.com>,"Fri, 13 Mar 2026 23:26:18 -0400",contact test 01,,,,,,,regex-fallback
+attachments/19cea61a_V00011 (5).pdf,TAO YAN <yantao789@gmail.com>,"Fri, 13 Mar 2026 23:26:18 -0400",contact test 01,,,,,,,regex-fallback
+attachments/19cea61a_V00011 (2).pdf,TAO YAN <yantao789@gmail.com>,"Fri, 13 Mar 2026 23:26:18 -0400",contact test 01,,,,,,,regex-fallback
+attachments/19cea3f5_0091313.pdf,TAO YAN <yantao789@gmail.com>,"Fri, 13 Mar 2026 22:48:53 -0400",contact,,d,,,07,,regex-fallback
+"attachments/19cd568a_JE#810189 V03389-TELUS SANTE $3,351.25.pdf",Michael <donglan.myan@gmail.com>,"Mon, 9 Mar 2026 21:42:10 -0400",Fwd: payment,,,,,,,regex-fallback
+"attachments/19cd55ff_JE#810189 V03389-TELUS SANTE $3,351.25.pdf",TAO YAN <yantao789@gmail.com>,"Mon, 9 Mar 2026 21:32:28 -0400",invoice for payment,,,,,,,regex-fallback
+"attachments/19cd5563_JE#810189 V03389-TELUS SANTE $3,351.25.pdf",TAO YAN <yantao789@gmail.com>,"Mon, 9 Mar 2026 21:21:49 -0400",Invoice for payment,,,,,,,regex-fallback
+"attachments/19cd5549_JE#810189 V03389-TELUS SANTE $3,351.25.pdf",TAO YAN <yantao789@gmail.com>,"Mon, 9 Mar 2026 21:20:02 -0400",payment,,,,,,,regex-fallback
+"attachments/19cd49c5_JE#810189 V03389-TELUS SANTE $3,351.25.pdf",TAO YAN <yantao789@gmail.com>,"Mon, 9 Mar 2026 17:58:48 -0400",invoice for payment,,,,,,,regex-fallback
+"attachments/19cd47d9_JE#810189 V03389-TELUS SANTE $3,351.25.pdf",TAO YAN <yantao789@gmail.com>,"Mon, 9 Mar 2026 17:25:13 -0400",hellow,,,,,,,regex-fallback
+attachments/19cd47d5_JE#805272 V00076-KARSHRUTH $250.00.pdf,TAO YAN <yantao789@gmail.com>,"Mon, 9 Mar 2026 17:24:54 -0400",invoice for karshruth,,,,,,,regex-fallback
