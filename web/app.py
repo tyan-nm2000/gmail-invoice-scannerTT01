@@ -37,10 +37,13 @@ from flask import (
 from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
 
-# Make the project root importable so we can reuse extractor.py.
-PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-if PROJECT_ROOT not in sys.path:
-    sys.path.insert(0, PROJECT_ROOT)
+# Make the project root and this web/ dir importable regardless of how the
+# interpreter was launched (needed for the portable Python used on Windows).
+WEB_DIR = os.path.dirname(os.path.abspath(__file__))
+PROJECT_ROOT = os.path.dirname(WEB_DIR)
+for _p in (PROJECT_ROOT, WEB_DIR):
+    if _p not in sys.path:
+        sys.path.insert(0, _p)
 
 # Load settings from a .env file if present (python-dotenv is optional).
 try:

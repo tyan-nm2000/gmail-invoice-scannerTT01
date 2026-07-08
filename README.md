@@ -26,8 +26,9 @@ checkboxes, bilingual FR/EN) — that's what the AI vision path is for.
 ### Run it
 
 **Windows (recommended for local hosting):** see **[WINDOWS_SETUP.md](WINDOWS_SETUP.md)**
-— download the code, double-click `run.bat`, done. It creates a virtual
-environment, installs dependencies, and prompts for your API key on first run.
+— **no Python install needed.** Download the code and double-click `run.bat`; on
+first run it downloads a private, self-contained Python into the project folder,
+installs the dependencies, and prompts for your API key. Later runs start instantly.
 
 **macOS / Linux:**
 

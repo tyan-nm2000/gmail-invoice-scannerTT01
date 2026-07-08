@@ -4,13 +4,14 @@ This guide sets the app up on your own computer under
 `C:\Users\tao\Claude Projects`, so it runs privately on your machine. Nothing is
 exposed to the internet.
 
-## Step 1 — Install Python (one time)
+**You do NOT need to install Python.** The launcher downloads its own private copy
+of Python into the project folder on first run — nothing is installed on Windows,
+no admin rights are needed, and deleting the folder removes everything.
 
-1. Go to <https://www.python.org/downloads/> and download Python 3.9 or newer.
-2. Run the installer. **On the first screen, tick "Add python.exe to PATH"**,
-   then click *Install Now*.
+Requirements: Windows 10 or 11 (which include the `curl` and PowerShell tools the
+launcher uses) and an internet connection.
 
-## Step 2 — Put the code in your folder
+## Step 1 — Put the code in your folder
 
 You need the project files inside `C:\Users\tao\Claude Projects`. Pick ONE:
 
@@ -19,7 +20,8 @@ You need the project files inside `C:\Users\tao\Claude Projects`. Pick ONE:
 1. Open the branch on GitHub:
    `https://github.com/tyan-nm2000/gmail-invoice-scannerTT01/tree/claude/pdf-excel-scanner-ui-ynyw33`
 2. Click the green **Code** button → **Download ZIP**.
-3. Extract it. Move the extracted folder into `C:\Users\tao\Claude Projects` and
+3. Extract it (right-click the ZIP → *Extract All* — don't just open it inside the
+   ZIP viewer). Move the extracted folder into `C:\Users\tao\Claude Projects` and
    rename it to something simple like `employee-scanner`, so you end up with:
    `C:\Users\tao\Claude Projects\employee-scanner\run.bat`
 
@@ -32,19 +34,24 @@ cd "C:\Users\tao\Claude Projects"
 git clone -b claude/pdf-excel-scanner-ui-ynyw33 https://github.com/tyan-nm2000/gmail-invoice-scannerTT01.git employee-scanner
 ```
 
-## Step 3 — Start it
+## Step 2 — Start it
 
 1. Open the folder `C:\Users\tao\Claude Projects\employee-scanner`.
 2. **Double-click `run.bat`.**
-   - The first run installs everything, then opens a **Notepad** window with your
-     settings file (`.env`).
+   - The first run downloads its private Python and the dependencies (a few
+     minutes — you'll see steps `[1/4]`…`[4/4]`), then opens a **Notepad** window
+     with your settings file (`.env`).
    - Paste your Anthropic API key after `ANTHROPIC_API_KEY=`, then **Save** and
      **Close** Notepad.
-   - Double-click `run.bat` again.
+   - Double-click `run.bat` again. (Later runs skip setup and start immediately.)
 3. When you see `running at http://127.0.0.1:5000`, open that address in your web
    browser (Chrome/Edge).
 
-## Step 4 — Create accounts
+> If Windows SmartScreen warns about running a `.bat`, click *More info → Run
+> anyway*. The file is the plain-text launcher in this project — you can open it in
+> Notepad to read exactly what it does.
+
+## Step 3 — Create accounts
 
 - The **first** account you register becomes the **admin** — register yourself.
 - To add teammates, log in and click **Users** in the top bar, then create an

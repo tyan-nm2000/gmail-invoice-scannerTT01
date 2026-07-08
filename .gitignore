@@ -28,6 +28,10 @@ web/instance/
 # Virtual environment created by run.bat
 .venv/
 
+# Private portable Python that run.bat downloads into the project folder
+/python/
+get-pip.py
+
 # IDE
 .vscode/
 .idea/
