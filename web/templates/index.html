@@ -40,21 +40,23 @@
     <p class="muted small">Uploaded files and reports are automatically deleted
        {{ retention_days }} days after scanning.</p>
   {% endif %}
-  <table class="table">
-    <thead>
-      <tr><th>When</th><th>Files</th><th>Summary</th><th></th></tr>
-    </thead>
-    <tbody>
-      {% for s in scans %}
-      <tr>
-        <td class="nowrap">{{ s["created_at"].replace("T", " ")[:16] }}</td>
-        <td>{{ s["file_count"] }}</td>
-        <td class="muted">{{ s["summary"] }}</td>
-        <td><a class="btn small" href="{{ url_for('download', scan_id=s['id']) }}">Download .xlsx</a></td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+  <div class="table-scroll">
+    <table class="table">
+      <thead>
+        <tr><th>When</th><th>Files</th><th>Summary</th><th></th></tr>
+      </thead>
+      <tbody>
+        {% for s in scans %}
+        <tr>
+          <td class="nowrap">{{ s["created_at"].replace("T", " ")[:16] }}</td>
+          <td>{{ s["file_count"] }}</td>
+          <td class="muted">{{ s["summary"] }}</td>
+          <td><a class="btn small" href="{{ url_for('download', scan_id=s['id']) }}">Download .xlsx</a></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 </section>
 {% endif %}
 

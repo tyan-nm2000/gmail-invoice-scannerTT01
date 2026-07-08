@@ -44,7 +44,7 @@ code { background: #eef1f6; padding: 1px 5px; border-radius: 5px; font-size: .9e
 .topbar nav { display: flex; align-items: center; gap: 12px; }
 .user { color: var(--muted); font-size: .9rem; }
 
-.container { max-width: 920px; margin: 0 auto; padding: 28px 20px 60px; }
+.container { max-width: 1060px; margin: 0 auto; padding: 28px 20px 60px; }
 
 /* Buttons */
 .btn {
@@ -144,7 +144,7 @@ input:focus { outline: 2px solid var(--brand-2); outline-offset: -1px; border-co
 .table {
   width: 100%; border-collapse: collapse; background: var(--card);
   border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow);
-  font-size: .9rem;
+  font-size: .9rem; min-width: 640px;
 }
 .table th, .table td {
   text-align: left; padding: 11px 14px; border-bottom: 1px solid var(--line);
