@@ -44,14 +44,22 @@ git clone -b claude/pdf-excel-scanner-ui-ynyw33 https://github.com/tyan-nm2000/g
 3. When you see `running at http://127.0.0.1:5000`, open that address in your web
    browser (Chrome/Edge).
 
-## Step 4 — Create your account
+## Step 4 — Create accounts
 
-- The **first** account you register becomes the **admin**. Register yourself.
-- Have teammates register too. Once everyone has an account, open `.env`, set
-  `ALLOW_REGISTRATION=0`, save, and restart `run.bat` to stop any new sign-ups.
+- The **first** account you register becomes the **admin** — register yourself.
+- To add teammates, log in and click **Users** in the top bar, then create an
+  account (username + password) for each person. By default nobody can sign
+  themselves up — only you, the admin, add accounts. You can also delete accounts
+  there, and mark someone else as an admin.
+- *(Prefer letting people self-register instead? Open `.env`, set
+  `ALLOW_REGISTRATION=1`, save, and restart `run.bat`.)*
 
 To use it: log in, drag PDFs onto the page, click **Scan & export to Excel**, and
 download the workbook.
+
+**Automatic cleanup:** uploaded PDFs and the Excel reports are deleted 30 days
+after a scan. Change this by setting `RETENTION_DAYS` in `.env` (use `0` to keep
+files forever).
 
 ## Letting teammates reach it (optional)
 

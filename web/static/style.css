@@ -87,6 +87,14 @@ input:focus { outline: 2px solid var(--brand-2); outline-offset: -1px; border-co
 .small { font-size: .82rem; }
 .center { text-align: center; }
 
+/* Admin user form */
+.user-form { display: grid; gap: 14px; max-width: 420px; margin-top: 6px; }
+.user-form .checkbox {
+  display: flex; flex-direction: row; align-items: center; gap: 8px;
+  font-weight: 500; color: var(--ink);
+}
+.user-form .checkbox input { width: auto; }
+
 /* Hero + upload */
 .hero h1 { margin: 0 0 6px; font-size: 1.6rem; }
 .hero { margin-bottom: 22px; }

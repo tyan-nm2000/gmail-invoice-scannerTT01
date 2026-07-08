@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}Users · Employee File Scanner{% endblock %}
+{% block content %}
+<section class="results-head">
+  <div>
+    <h1>Team accounts</h1>
+    <p class="muted">Only administrators can create or remove accounts.</p>
+  </div>
+  <a class="btn ghost" href="{{ url_for('index') }}">← Back to scanner</a>
+</section>
+
+<div class="upload-card" style="margin-bottom:26px;">
+  <h2 style="margin-top:0;font-size:1.1rem;">Create an account</h2>
+  <form method="post" action="{{ url_for('admin_create_user') }}" class="user-form">
+    <label>Username
+      <input name="username" autocomplete="off" required>
+    </label>
+    <label>Password
+      <input name="password" type="password" autocomplete="new-password" required>
+    </label>
+    <label class="checkbox">
+      <input type="checkbox" name="is_admin" value="1">
+      Make this user an administrator
+    </label>
+    <button class="btn primary" type="submit">Create account</button>
+  </form>
+</div>
+
+<div class="table-scroll">
+  <table class="table">
+    <thead>
+      <tr><th>Username</th><th>Role</th><th>Created</th><th></th></tr>
+    </thead>
+    <tbody>
+      {% for u in users %}
+      <tr>
+        <td>{{ u["username"] }}</td>
+        <td>
+          {% if u["is_admin"] %}<span class="tag">admin</span>
+          {% else %}<span class="tag" style="background:#eef1f6;color:#55617a;">member</span>{% endif %}
+        </td>
+        <td class="nowrap muted">{{ u["created_at"].replace("T", " ")[:16] }}</td>
+        <td>
+          {% if u["id"] != session["user_id"] %}
+          <form method="post" action="{{ url_for('admin_delete_user', user_id=u['id']) }}"
+                onsubmit="return confirm('Delete this account and all their scans? This cannot be undone.');"
+                style="margin:0;">
+            <button class="btn small" type="submit">Delete</button>
+          </form>
+          {% else %}
+            <span class="muted small">(you)</span>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

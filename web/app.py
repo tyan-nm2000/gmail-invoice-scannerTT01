@@ -16,10 +16,11 @@ after everyone has an account).
 """
 
 import os
+import shutil
 import sqlite3
 import sys
 import uuid
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from functools import wraps
 
 from flask import (
@@ -58,7 +59,18 @@ UPLOAD_DIR = os.path.join(INSTANCE_DIR, "uploads")
 DB_PATH = os.path.join(INSTANCE_DIR, "scanner.db")
 MAX_CONTENT_LENGTH = 25 * 1024 * 1024  # 25 MB per request
 ALLOWED_EXTENSIONS = {".pdf"}
-ALLOW_REGISTRATION = os.environ.get("ALLOW_REGISTRATION", "1") != "0"
+
+# Account creation is admin-only by default. Set ALLOW_REGISTRATION=1 to let
+# people self-register from the login page instead. The very first account
+# (the admin) can always be created regardless of this setting.
+ALLOW_REGISTRATION = os.environ.get("ALLOW_REGISTRATION", "0") != "0"
+
+# Uploaded PDFs + generated workbooks are deleted this many days after a scan.
+# Set RETENTION_DAYS=0 to keep them forever.
+try:
+    RETENTION_DAYS = int(os.environ.get("RETENTION_DAYS", "30"))
+except ValueError:
+    RETENTION_DAYS = 30
 
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
@@ -124,9 +136,47 @@ def login_required(view):
     return wrapped
 
 
+def admin_required(view):
+    @wraps(view)
+    def wrapped(*args, **kwargs):
+        if not session.get("user_id"):
+            return redirect(url_for("login", next=request.path))
+        if not session.get("is_admin"):
+            flash("That page is for administrators only.", "error")
+            return redirect(url_for("index"))
+        return view(*args, **kwargs)
+
+    return wrapped
+
+
 @app.context_processor
 def inject_user():
-    return {"current_user": session.get("username")}
+    return {
+        "current_user": session.get("username"),
+        "is_admin": session.get("is_admin", False),
+    }
+
+
+# ── Retention: delete old uploads ───────────────────────────────────────────
+def purge_old_scans():
+    """Delete scans (files + DB rows) older than RETENTION_DAYS.
+
+    Runs opportunistically whenever the app is used. No-op if retention is 0.
+    """
+    if RETENTION_DAYS <= 0:
+        return
+    cutoff = (datetime.now(timezone.utc) - timedelta(days=RETENTION_DAYS)).isoformat()
+    db = get_db()
+    old = db.execute(
+        "SELECT id FROM scans WHERE created_at < ?", (cutoff,)
+    ).fetchall()
+    if not old:
+        return
+    for row in old:
+        scan_dir = os.path.join(UPLOAD_DIR, row["id"])
+        shutil.rmtree(scan_dir, ignore_errors=True)
+    db.execute("DELETE FROM scans WHERE created_at < ?", (cutoff,))
+    db.commit()
 
 
 @app.route("/register", methods=["GET", "POST"])
@@ -201,6 +251,77 @@ def logout():
     return redirect(url_for("login"))
 
 
+# ── Admin: user management ──────────────────────────────────────────────────
+@app.route("/admin/users")
+@admin_required
+def admin_users():
+    db = get_db()
+    users = db.execute(
+        "SELECT id, username, is_admin, created_at FROM users ORDER BY created_at"
+    ).fetchall()
+    return render_template("admin_users.html", users=users)
+
+
+@app.route("/admin/users/create", methods=["POST"])
+@admin_required
+def admin_create_user():
+    db = get_db()
+    username = (request.form.get("username") or "").strip()
+    password = request.form.get("password") or ""
+    is_admin = 1 if request.form.get("is_admin") else 0
+
+    if not username or not password:
+        flash("Username and password are required.", "error")
+    elif len(password) < 6:
+        flash("Password must be at least 6 characters.", "error")
+    elif db.execute("SELECT 1 FROM users WHERE username = ?", (username,)).fetchone():
+        flash(f"Username '{username}' is already taken.", "error")
+    else:
+        db.execute(
+            "INSERT INTO users (username, password_hash, is_admin, created_at)"
+            " VALUES (?, ?, ?, ?)",
+            (username, generate_password_hash(password), is_admin, now_iso()),
+        )
+        db.commit()
+        flash(f"Account '{username}' created.", "success")
+    return redirect(url_for("admin_users"))
+
+
+@app.route("/admin/users/<int:user_id>/delete", methods=["POST"])
+@admin_required
+def admin_delete_user(user_id):
+    db = get_db()
+    if user_id == session["user_id"]:
+        flash("You can't delete your own account while logged in.", "error")
+        return redirect(url_for("admin_users"))
+
+    target = db.execute(
+        "SELECT username, is_admin FROM users WHERE id = ?", (user_id,)
+    ).fetchone()
+    if not target:
+        flash("That user no longer exists.", "error")
+        return redirect(url_for("admin_users"))
+
+    # Never remove the last remaining admin.
+    if target["is_admin"]:
+        admin_count = db.execute(
+            "SELECT COUNT(*) AS n FROM users WHERE is_admin = 1"
+        ).fetchone()["n"]
+        if admin_count <= 1:
+            flash("Can't delete the only administrator.", "error")
+            return redirect(url_for("admin_users"))
+
+    # Remove the user's scans (files + rows), then the user.
+    scans = db.execute("SELECT id FROM scans WHERE user_id = ?", (user_id,)).fetchall()
+    for row in scans:
+        shutil.rmtree(os.path.join(UPLOAD_DIR, row["id"]), ignore_errors=True)
+    db.execute("DELETE FROM scans WHERE user_id = ?", (user_id,))
+    db.execute("DELETE FROM users WHERE id = ?", (user_id,))
+    db.commit()
+    flash(f"Account '{target['username']}' and its scans were deleted.", "success")
+    return redirect(url_for("admin_users"))
+
+
 # ── Scanning ──────────────────────────────────────────────────────────────────
 def _allowed(filename):
     return os.path.splitext(filename.lower())[1] in ALLOWED_EXTENSIONS
@@ -209,13 +330,19 @@ def _allowed(filename):
 @app.route("/")
 @login_required
 def index():
+    purge_old_scans()  # opportunistic cleanup of expired uploads
     db = get_db()
     scans = db.execute(
         "SELECT * FROM scans WHERE user_id = ? ORDER BY created_at DESC LIMIT 20",
         (session["user_id"],),
     ).fetchall()
     has_api_key = bool(os.environ.get("ANTHROPIC_API_KEY"))
-    return render_template("index.html", scans=scans, has_api_key=has_api_key)
+    return render_template(
+        "index.html",
+        scans=scans,
+        has_api_key=has_api_key,
+        retention_days=RETENTION_DAYS,
+    )
 
 
 @app.route("/scan", methods=["POST"])
@@ -257,7 +384,7 @@ def scan():
 
     # Build the Excel workbook and persist it for later download.
     xlsx_bytes = workbook_to_bytes(records)
-    xlsx_path = os.path.join(scan_dir, "invoices.xlsx")
+    xlsx_path = os.path.join(scan_dir, "employees.xlsx")
     with open(xlsx_path, "wb") as fh:
         fh.write(xlsx_bytes)
 

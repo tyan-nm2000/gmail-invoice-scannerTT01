@@ -55,24 +55,38 @@ Optional environment variables:
 | `ANTHROPIC_API_KEY`  | –                  | Enables AI extraction (falls back to raw text without it) |
 | `ANTHROPIC_MODEL`    | `claude-sonnet-5`  | Override the extraction model               |
 | `EMPLOYEE_MAX_PAGES` | `20`               | Max pages per packet sent to the model      |
-| `ALLOW_REGISTRATION` | `1`                | Set `0` to lock self-registration           |
+| `ALLOW_REGISTRATION` | `0`                | `0` = admin creates accounts; `1` = open self-registration |
+| `RETENTION_DAYS`     | `30`               | Auto-delete uploads/reports after N days (`0` = keep forever) |
+| `HOST`               | `127.0.0.1`        | `0.0.0.0` to allow LAN access               |
 | `SECRET_KEY`         | dev key            | Session signing secret                      |
 
 ### Using it
 
-1. Open the app. The **first person to register becomes the admin**.
-2. Teammates self-register from the login page (set `ALLOW_REGISTRATION=0` to lock
-   registration once everyone has an account).
+1. Open the app and register — the **first account becomes the admin**.
+2. **Adding teammates (admin-only by default):** as admin, open the **Users** page
+   (link in the top bar) and create an account for each team member. They then log
+   in with those credentials. (Prefer open self-signup instead? Set
+   `ALLOW_REGISTRATION=1`.)
 3. Log in, drag-and-drop employee PDFs, and click **Scan & export to Excel**.
 4. Download the workbook. Past scans are listed on the home page for re-download.
+
+**Access control & retention**
+
+- **Admin-only accounts** — by default nobody can sign up on their own; an admin
+  creates and deletes accounts from the in-app Users page. Deleting a user also
+  deletes their scans.
+- **Auto-deletion** — uploaded PDFs and generated workbooks are removed
+  `RETENTION_DAYS` days after each scan (default 30). Cleanup runs whenever the app
+  is used.
+- Each user sees and downloads **only their own scans**.
 
 Uploaded PDFs, the generated workbooks, and the user database live under
 `web/instance/` (git-ignored). Requests are capped at 25 MB.
 
 > **Privacy note:** these forms contain sensitive personal data (SIN, date of birth,
 > medical card numbers). Uploaded files and extracted data are stored unencrypted
-> under `web/instance/` on the server — deploy behind proper access controls and a
-> retention policy suited to your jurisdiction.
+> under `web/instance/` on the server — keep it behind proper access controls, and
+> note that page images are sent to Anthropic's API for extraction.
 
 ## Gmail scanner (CLI)
 

@@ -36,6 +36,10 @@
 {% if scans %}
 <section class="history">
   <h2>Recent scans</h2>
+  {% if retention_days and retention_days > 0 %}
+    <p class="muted small">Uploaded files and reports are automatically deleted
+       {{ retention_days }} days after scanning.</p>
+  {% endif %}
   <table class="table">
     <thead>
       <tr><th>When</th><th>Files</th><th>Summary</th><th></th></tr>
