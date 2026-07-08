@@ -22,6 +22,12 @@ attachments/
 # Web app instance data (SQLite DB + uploaded PDFs + generated xlsx)
 web/instance/
 
+# Local environment settings (contains API key + session secret)
+.env
+
+# Virtual environment created by run.bat
+.venv/
+
 # IDE
 .vscode/
 .idea/

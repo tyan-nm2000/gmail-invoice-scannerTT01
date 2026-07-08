@@ -1,14 +1,13 @@
 #!/usr/bin/env python3
-"""PDF Invoice Scanner — web UI.
+"""Employee File Scanner — web UI.
 
-A small Flask application that lets team members log in, upload PDF invoices,
-extract structured data with Claude AI (reusing the project's extractor), and
-download the results as a formatted Excel workbook.
+A small Flask application that lets team members log in, upload employee
+onboarding PDFs, extract structured data with Claude AI vision, and download
+the results as a formatted Excel workbook.
 
-Run locally:
+Run locally (Windows: just double-click run.bat instead):
     pip install -r requirements.txt
-    export ANTHROPIC_API_KEY=sk-...        # optional; falls back to regex
-    export SECRET_KEY=$(python -c "import secrets;print(secrets.token_hex())")
+    # put your settings in a .env file (see .env.example), then:
     python web/app.py                       # http://localhost:5000
 
 The first account you register becomes an admin. Additional team members can
@@ -41,6 +40,14 @@ from werkzeug.utils import secure_filename
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if PROJECT_ROOT not in sys.path:
     sys.path.insert(0, PROJECT_ROOT)
+
+# Load settings from a .env file if present (python-dotenv is optional).
+try:
+    from dotenv import load_dotenv
+
+    load_dotenv(os.path.join(PROJECT_ROOT, ".env"))
+except ImportError:
+    pass
 
 from employee_extractor import extract_employee_data  # noqa: E402
 from excel_export import workbook_to_bytes  # noqa: E402
@@ -318,5 +325,12 @@ init_db()
 
 
 if __name__ == "__main__":
+    # HOST defaults to 127.0.0.1 (this machine only). Set HOST=0.0.0.0 to make
+    # the app reachable by other computers on your local network (LAN).
+    host = os.environ.get("HOST", "127.0.0.1")
     port = int(os.environ.get("PORT", "5000"))
-    app.run(host="0.0.0.0", port=port, debug=bool(os.environ.get("FLASK_DEBUG")))
+    print(f"\n  Employee File Scanner running at http://{host}:{port}")
+    if host == "0.0.0.0":
+        print("  (reachable from other machines on your network at http://<this-PC-IP>:%d)" % port)
+    print("  Press Ctrl+C to stop.\n")
+    app.run(host=host, port=port, debug=bool(os.environ.get("FLASK_DEBUG")))

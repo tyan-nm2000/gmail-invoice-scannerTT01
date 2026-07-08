@@ -25,17 +25,21 @@ checkboxes, bilingual FR/EN) — that's what the AI vision path is for.
 
 ### Run it
 
+**Windows (recommended for local hosting):** see **[WINDOWS_SETUP.md](WINDOWS_SETUP.md)**
+— download the code, double-click `run.bat`, done. It creates a virtual
+environment, installs dependencies, and prompts for your API key on first run.
+
+**macOS / Linux:**
+
 ```bash
 pip install -r requirements.txt
-
-# Required for extraction — Claude reads the (often scanned) forms via vision.
-export ANTHROPIC_API_KEY=sk-ant-...
-
-# Recommended in production — signs login sessions
-export SECRET_KEY=$(python -c "import secrets; print(secrets.token_hex())")
-
-python web/app.py                 # serves on http://localhost:5000
+cp .env.example .env          # then edit .env and add your ANTHROPIC_API_KEY
+python web/app.py             # serves on http://127.0.0.1:5000
 ```
+
+Settings are read from a `.env` file (see `.env.example`) or plain environment
+variables. By default the app binds to `127.0.0.1` (this machine only); set
+`HOST=0.0.0.0` to let other computers on your local network reach it.
 
 For a production deployment use gunicorn (long timeout — vision on a 20-page scan
 can take a minute):
