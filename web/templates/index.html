@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% block title %}Scan invoices · Invoice Scanner{% endblock %}
+{% block content %}
+<section class="hero">
+  <h1>Scan PDF invoices → Excel</h1>
+  <p class="muted">Upload one or more PDF invoices. We extract the vendor, amounts,
+     dates and line items, then hand you back a formatted Excel workbook.</p>
+  {% if not has_api_key %}
+    <div class="flash error">
+      No <code>ANTHROPIC_API_KEY</code> is configured on the server — extraction
+      will use the basic regex fallback. Set the key for AI-powered results.
+    </div>
+  {% endif %}
+</section>
+
+<form class="upload-card" method="post" action="{{ url_for('scan') }}"
+      enctype="multipart/form-data" id="upload-form">
+  <label class="dropzone" id="dropzone">
+    <input type="file" name="pdfs" id="file-input" accept="application/pdf,.pdf" multiple hidden>
+    <div class="dropzone-inner">
+      <div class="dz-icon">⬆️</div>
+      <div class="dz-text"><strong>Click to choose</strong> or drag &amp; drop PDF files</div>
+      <div class="muted small">PDF only · up to 25 MB total</div>
+    </div>
+  </label>
+  <ul class="file-list" id="file-list"></ul>
+  <button class="btn primary block" type="submit" id="scan-btn" disabled>
+    Scan &amp; export to Excel
+  </button>
+  <div class="spinner-row" id="spinner" hidden>
+    <span class="spinner"></span> Extracting data — this can take a moment per file…
+  </div>
+</form>
+
+{% if scans %}
+<section class="history">
+  <h2>Recent scans</h2>
+  <table class="table">
+    <thead>
+      <tr><th>When</th><th>Files</th><th>Summary</th><th></th></tr>
+    </thead>
+    <tbody>
+      {% for s in scans %}
+      <tr>
+        <td class="nowrap">{{ s["created_at"].replace("T", " ")[:16] }}</td>
+        <td>{{ s["file_count"] }}</td>
+        <td class="muted">{{ s["summary"] }}</td>
+        <td><a class="btn small" href="{{ url_for('download', scan_id=s['id']) }}">Download .xlsx</a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endif %}
+
+<script>
+  const input = document.getElementById('file-input');
+  const dropzone = document.getElementById('dropzone');
+  const list = document.getElementById('file-list');
+  const scanBtn = document.getElementById('scan-btn');
+  const form = document.getElementById('upload-form');
+  const spinner = document.getElementById('spinner');
+
+  function render() {
+    list.innerHTML = '';
+    const files = Array.from(input.files || []);
+    files.forEach(f => {
+      const li = document.createElement('li');
+      const kb = (f.size / 1024).toFixed(0);
+      li.innerHTML = `<span>📄 ${f.name}</span><span class="muted small">${kb} KB</span>`;
+      list.appendChild(li);
+    });
+    scanBtn.disabled = files.length === 0;
+  }
+
+  input.addEventListener('change', render);
+
+  ['dragover', 'dragenter'].forEach(evt =>
+    dropzone.addEventListener(evt, e => { e.preventDefault(); dropzone.classList.add('drag'); }));
+  ['dragleave', 'drop'].forEach(evt =>
+    dropzone.addEventListener(evt, e => { e.preventDefault(); dropzone.classList.remove('drag'); }));
+  dropzone.addEventListener('drop', e => {
+    input.files = e.dataTransfer.files;
+    render();
+  });
+
+  form.addEventListener('submit', () => {
+    scanBtn.disabled = true;
+    scanBtn.textContent = 'Scanning…';
+    spinner.hidden = false;
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Register · Invoice Scanner{% endblock %}
+{% block content %}
+<div class="auth-card">
+  <h1>{% if first_user %}Create the admin account{% else %}Create your account{% endif %}</h1>
+  <p class="muted">
+    {% if first_user %}
+      You're the first user — this account will be the administrator.
+    {% else %}
+      Register to start scanning invoices with your team.
+    {% endif %}
+  </p>
+  <form method="post" action="{{ url_for('register') }}">
+    <label>Username
+      <input name="username" autocomplete="username" required autofocus>
+    </label>
+    <label>Password
+      <input name="password" type="password" autocomplete="new-password" required>
+    </label>
+    <label>Confirm password
+      <input name="confirm" type="password" autocomplete="new-password" required>
+    </label>
+    <button class="btn primary" type="submit">Create account</button>
+  </form>
+  <p class="muted center">Already registered?
+    <a href="{{ url_for('login') }}">Log in</a>
+  </p>
+</div>
+{% endblock %}

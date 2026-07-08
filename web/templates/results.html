@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Results · Invoice Scanner{% endblock %}
+{% block content %}
+<section class="results-head">
+  <div>
+    <h1>Extraction complete</h1>
+    <p class="muted">{{ records|length }} file(s) processed.</p>
+  </div>
+  <div class="actions">
+    <a class="btn primary" href="{{ url_for('download', scan_id=scan_id) }}">⬇ Download Excel</a>
+    <a class="btn ghost" href="{{ url_for('index') }}">Scan more</a>
+  </div>
+</section>
+
+<div class="table-scroll">
+  <table class="table">
+    <thead>
+      <tr>
+        <th>File</th><th>Vendor</th><th>Invoice #</th><th>Date</th>
+        <th>Due</th><th>Total</th><th>Items</th><th>Method</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for r in records %}
+      <tr>
+        <td class="nowrap">📄 {{ r.get('original_filename', r.get('file', '')) }}</td>
+        <td>{{ r.get('vendor_name') or '—' }}</td>
+        <td>{{ r.get('invoice_number') or '—' }}</td>
+        <td class="nowrap">{{ r.get('invoice_date') or '—' }}</td>
+        <td class="nowrap">{{ r.get('due_date') or '—' }}</td>
+        <td class="nowrap"><strong>{{ r.get('currency') or '' }} {{ r.get('total_amount') or '—' }}</strong></td>
+        <td>{{ r.get('line_items')|length if r.get('line_items') else 0 }}</td>
+        <td>
+          {% if r.get('error') %}
+            <span class="tag warn" title="{{ r['error'] }}">error</span>
+          {% else %}
+            <span class="tag">{{ r.get('extraction_method', '—') }}</span>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

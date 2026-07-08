@@ -19,6 +19,9 @@ attachments/
 # Downloaded attachments only (output/ is tracked for GitHub Actions results)
 # output/
 
+# Web app instance data (SQLite DB + uploaded PDFs + generated xlsx)
+web/instance/
+
 # IDE
 .vscode/
 .idea/
