@@ -3,14 +3,14 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{% block title %}PDF Invoice Scanner{% endblock %}</title>
+  <title>{% block title %}Employee File Scanner{% endblock %}</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
   <header class="topbar">
     <a class="brand" href="{{ url_for('index') }}">
       <span class="logo">📄→📊</span>
-      <span>Invoice Scanner</span>
+      <span>Employee File Scanner</span>
     </a>
     <nav>
       {% if current_user %}
@@ -35,7 +35,7 @@
   </main>
 
   <footer class="footer">
-    <span>PDF → Excel invoice extraction · powered by Claude AI</span>
+    <span>PDF → Excel employee-file extraction · powered by Claude AI</span>
   </footer>
 </body>
 </html>

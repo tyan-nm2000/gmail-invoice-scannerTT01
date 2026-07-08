@@ -140,7 +140,12 @@ def _extract_with_claude(pdf_path):
             messages=[{"role": "user", "content": content}],
         )
 
-        response_text = response.content[0].text.strip()
+        # Newer models may emit a thinking block before the text block, so
+        # collect every text block rather than indexing content[0].
+        response_text = "".join(
+            block.text for block in response.content
+            if getattr(block, "type", None) == "text"
+        ).strip()
 
         # Handle potential markdown code blocks in response
         if response_text.startswith("```"):

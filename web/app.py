@@ -42,7 +42,7 @@ PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if PROJECT_ROOT not in sys.path:
     sys.path.insert(0, PROJECT_ROOT)
 
-from extractor import extract_invoice_data  # noqa: E402
+from employee_extractor import extract_employee_data  # noqa: E402
 from excel_export import workbook_to_bytes  # noqa: E402
 
 # ── Configuration ─────────────────────────────────────────────────────────────
@@ -234,7 +234,7 @@ def scan():
         saved_path = os.path.join(scan_dir, safe)
         f.save(saved_path)
         try:
-            data = extract_invoice_data(saved_path)
+            data = extract_employee_data(saved_path)
         except Exception as exc:  # keep one bad file from failing the batch
             data = {"file": saved_path, "error": f"Extraction failed: {exc}"}
         data["original_filename"] = original
@@ -276,10 +276,15 @@ def scan():
 
 
 def _summarise(records):
-    vendors = [r.get("vendor_name") for r in records if r.get("vendor_name")]
-    if vendors:
-        head = ", ".join(dict.fromkeys(vendors))
-        return head[:200]
+    names = []
+    for r in records:
+        name = " ".join(
+            p for p in (r.get("first_name"), r.get("family_name")) if p
+        ).strip()
+        if name:
+            names.append(name)
+    if names:
+        return ", ".join(dict.fromkeys(names))[:200]
     return f"{len(records)} file(s)"
 
 
@@ -297,7 +302,7 @@ def download(scan_id):
     return send_file(
         scan["xlsx_path"],
         as_attachment=True,
-        download_name=f"invoices_{scan_id[:8]}.xlsx",
+        download_name=f"employees_{scan_id[:8]}.xlsx",
         mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     )
 

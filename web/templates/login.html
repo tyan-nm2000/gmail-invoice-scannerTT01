@@ -1,9 +1,9 @@
 {% extends "base.html" %}
-{% block title %}Log in · Invoice Scanner{% endblock %}
+{% block title %}Log in · Employee File Scanner{% endblock %}
 {% block content %}
 <div class="auth-card">
   <h1>Welcome back</h1>
-  <p class="muted">Log in to scan PDF invoices and export to Excel.</p>
+  <p class="muted">Log in to scan employee onboarding files and export to Excel.</p>
   <form method="post" action="{{ url_for('login') }}">
     <label>Username
       <input name="username" autocomplete="username" required autofocus>

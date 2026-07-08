@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Results · Invoice Scanner{% endblock %}
+{% block title %}Results · Employee File Scanner{% endblock %}
 {% block content %}
 <section class="results-head">
   <div>
@@ -16,20 +16,21 @@
   <table class="table">
     <thead>
       <tr>
-        <th>File</th><th>Vendor</th><th>Invoice #</th><th>Date</th>
-        <th>Due</th><th>Total</th><th>Items</th><th>Method</th>
+        <th>Employee</th><th>Position</th><th>Department</th><th>Start Date</th>
+        <th>Salary</th><th>Email</th><th>Docs</th><th>Method</th>
       </tr>
     </thead>
     <tbody>
       {% for r in records %}
       <tr>
-        <td class="nowrap">📄 {{ r.get('original_filename', r.get('file', '')) }}</td>
-        <td>{{ r.get('vendor_name') or '—' }}</td>
-        <td>{{ r.get('invoice_number') or '—' }}</td>
-        <td class="nowrap">{{ r.get('invoice_date') or '—' }}</td>
-        <td class="nowrap">{{ r.get('due_date') or '—' }}</td>
-        <td class="nowrap"><strong>{{ r.get('currency') or '' }} {{ r.get('total_amount') or '—' }}</strong></td>
-        <td>{{ r.get('line_items')|length if r.get('line_items') else 0 }}</td>
+        <td class="nowrap">👤 {{ (r.get('first_name') ~ ' ' ~ r.get('family_name'))|trim
+             or r.get('original_filename', r.get('file', '')) }}</td>
+        <td>{{ r.get('position_title') or '—' }}</td>
+        <td>{{ r.get('department') or '—' }}</td>
+        <td class="nowrap">{{ r.get('start_date') or '—' }}</td>
+        <td class="nowrap"><strong>{{ r.get('salary_annual') or r.get('salary_hourly') or '—' }}</strong></td>
+        <td>{{ r.get('email') or '—' }}</td>
+        <td>{{ r.get('additional_documents')|length if r.get('additional_documents') else 0 }}</td>
         <td>
           {% if r.get('error') %}
             <span class="tag warn" title="{{ r['error'] }}">error</span>

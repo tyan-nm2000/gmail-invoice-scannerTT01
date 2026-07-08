@@ -1,26 +1,34 @@
-# Invoice Scanner
+# Document Scanner (PDF → Excel)
 
-Extracts structured data (vendor, invoice number, dates, totals, line items) from
-PDF invoices and exports it to Excel. Two ways to use it:
+Extracts structured data from PDF documents with Claude AI vision and exports it to
+Excel. Two tools live in this repo:
 
-- **Web UI** (`web/`) — a shareable, login-protected app where team members upload
-  PDFs and download an Excel workbook. See [Web UI](#web-ui-pdf--excel) below.
-- **Gmail scanner** (CLI) — scans a Gmail inbox for PDF attachments and reports the
-  extracted data. See [Gmail scanner](#gmail-scanner-cli) below.
+- **Employee File Scanner** (`web/`) — a shareable, login-protected web app where
+  team members upload employee onboarding PDFs (e.g. a Québec *Fiche Employé /
+  Employee File*, including multi-page scanned packets) and download an Excel
+  workbook. See [Employee File Scanner](#employee-file-scanner-web-ui) below.
+- **Gmail invoice scanner** (CLI) — scans a Gmail inbox for PDF invoice attachments
+  and reports the extracted data. See [Gmail scanner](#gmail-scanner-cli) below.
 
-Both share the same Claude-powered extraction engine (`extractor.py`).
+Both share the same Claude vision engine — `employee_extractor.py` for onboarding
+files and `extractor.py` for invoices.
 
-## Web UI (PDF → Excel)
+## Employee File Scanner (Web UI)
 
-A Flask app that lets your team log in, upload one or more PDF invoices, and download
-a formatted `.xlsx` workbook (an **Invoices** sheet + a **Line Items** sheet).
+A Flask app that lets your team log in, upload one or more employee onboarding PDFs,
+and download a formatted `.xlsx` workbook with an **Employees** sheet (one row per
+person, ~40 fields: personal details, job, pay, emergency contact, allergies…) and a
+**Documents** sheet listing the supporting documents found in each packet.
+
+Works on both clean digital forms and **scanned image PDFs** (handwriting,
+checkboxes, bilingual FR/EN) — that's what the AI vision path is for.
 
 ### Run it
 
 ```bash
 pip install -r requirements.txt
 
-# Optional but recommended — enables AI-powered extraction (falls back to regex if unset)
+# Required for extraction — Claude reads the (often scanned) forms via vision.
 export ANTHROPIC_API_KEY=sk-ant-...
 
 # Recommended in production — signs login sessions
@@ -29,22 +37,38 @@ export SECRET_KEY=$(python -c "import secrets; print(secrets.token_hex())")
 python web/app.py                 # serves on http://localhost:5000
 ```
 
-For a production deployment use gunicorn:
+For a production deployment use gunicorn (long timeout — vision on a 20-page scan
+can take a minute):
 
 ```bash
 gunicorn --chdir web app:app --bind 0.0.0.0:8000 --timeout 300
 ```
+
+Optional environment variables:
+
+| Variable             | Default            | Purpose                                     |
+|----------------------|--------------------|---------------------------------------------|
+| `ANTHROPIC_API_KEY`  | –                  | Enables AI extraction (falls back to raw text without it) |
+| `ANTHROPIC_MODEL`    | `claude-sonnet-5`  | Override the extraction model               |
+| `EMPLOYEE_MAX_PAGES` | `20`               | Max pages per packet sent to the model      |
+| `ALLOW_REGISTRATION` | `1`                | Set `0` to lock self-registration           |
+| `SECRET_KEY`         | dev key            | Session signing secret                      |
 
 ### Using it
 
 1. Open the app. The **first person to register becomes the admin**.
 2. Teammates self-register from the login page (set `ALLOW_REGISTRATION=0` to lock
    registration once everyone has an account).
-3. Log in, drag-and-drop PDF invoices, and click **Scan & export to Excel**.
+3. Log in, drag-and-drop employee PDFs, and click **Scan & export to Excel**.
 4. Download the workbook. Past scans are listed on the home page for re-download.
 
 Uploaded PDFs, the generated workbooks, and the user database live under
 `web/instance/` (git-ignored). Requests are capped at 25 MB.
+
+> **Privacy note:** these forms contain sensitive personal data (SIN, date of birth,
+> medical card numbers). Uploaded files and extracted data are stored unencrypted
+> under `web/instance/` on the server — deploy behind proper access controls and a
+> retention policy suited to your jurisdiction.
 
 ## Gmail scanner (CLI)
 
@@ -99,10 +123,11 @@ On first run, a browser window opens for Google OAuth consent. After authorizing
 ├── main.py            # Gmail CLI entry point – orchestrates the full pipeline
 ├── auth.py            # Gmail API OAuth 2.0 authentication
 ├── scanner.py         # Email search and PDF attachment download
-├── extractor.py       # PDF extraction (Claude vision + regex fallback) — shared
-├── web/               # Shareable web UI
+├── extractor.py       # Invoice PDF extraction (Claude vision + regex fallback)
+├── employee_extractor.py # Employee onboarding-file extraction (Claude vision)
+├── web/               # Shareable Employee File Scanner web UI
 │   ├── app.py         # Flask app: login, upload, scan, download
-│   ├── excel_export.py# Builds the .xlsx workbook from extracted data
+│   ├── excel_export.py# Builds the .xlsx workbook (Employees + Documents sheets)
 │   ├── templates/     # HTML templates
 │   └── static/        # CSS
 ├── requirements.txt   # Python dependencies

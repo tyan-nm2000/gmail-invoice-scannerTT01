@@ -1,8 +1,8 @@
-"""Convert extracted invoice data into a formatted Excel workbook.
+"""Convert extracted employee-onboarding data into a formatted Excel workbook.
 
 Builds a workbook with two sheets:
-- "Invoices": one row per PDF with the header-level fields.
-- "Line Items": one row per line item, linked back to its invoice.
+- "Employees": one row per processed file with every employee field.
+- "Documents": one row per supporting document found in each packet.
 """
 
 import io
@@ -12,32 +12,56 @@ from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
 from openpyxl.utils import get_column_letter
 
 
-# Header-level columns shown on the "Invoices" sheet.
-SUMMARY_COLUMNS = [
-    ("file", "File"),
-    ("vendor_name", "Vendor"),
-    ("vendor_address", "Vendor Address"),
-    ("buyer_name", "Buyer"),
-    ("buyer_address", "Buyer Address"),
-    ("invoice_number", "Invoice #"),
-    ("invoice_date", "Invoice Date"),
-    ("due_date", "Due Date"),
-    ("subtotal", "Subtotal"),
-    ("tax_amount", "Tax"),
-    ("total_amount", "Total"),
-    ("currency", "Currency"),
-    ("payment_terms", "Payment Terms"),
+# (record key, column header) — order defines the "Employees" sheet layout.
+EMPLOYEE_COLUMNS = [
+    ("original_filename", "File"),
+    ("company", "Company"),
+    ("first_name", "First Name"),
+    ("family_name", "Family Name"),
+    ("position_title", "Position"),
+    ("department", "Department"),
+    ("employment_type", "Employment Type"),
+    ("supervisor", "Supervisor"),
+    ("start_date", "Start Date"),
+    ("salary_hourly", "Salary (Hourly)"),
+    ("salary_annual", "Salary (Annual)"),
+    ("increase_amount", "Increase"),
+    ("increase_date", "Increase Date"),
+    ("vacation_percent", "Vacation %"),
+    ("email", "Email"),
+    ("mobile_phone", "Mobile Phone"),
+    ("home_phone", "Home Phone"),
+    ("address", "Address"),
+    ("apartment", "Apt"),
+    ("city_province", "City / Province"),
+    ("postal_code", "Postal Code"),
+    ("language", "Language"),
+    ("sex", "Sex"),
+    ("date_of_birth", "Date of Birth"),
+    ("social_insurance_number", "SIN / NAS"),
+    ("medical_card_ramq", "RAMQ / Medicare"),
+    ("driver_license", "Driver License"),
+    ("license_plate", "License Plate"),
+    ("car_model_color", "Car Model / Color"),
+    ("first_aider", "First Aider"),
+    ("forklift_permit", "Forklift Permit"),
+    ("clothing_size", "Clothing Size"),
+    ("emergency_contact_name", "Emergency Contact"),
+    ("emergency_contact_phone", "Emergency Phone"),
+    ("allergies_drugs", "Allergies (Drugs)"),
+    ("allergies_food", "Allergies (Food)"),
+    ("allergies_other", "Allergies (Other)"),
+    ("reference", "Referred By"),
+    ("employee_number", "Employee #"),
+    ("record_type", "Record Type"),
+    ("rver_contribution", "RVER"),
+    ("consent_given", "Consent"),
+    ("signature_date", "Signature Date"),
     ("notes", "Notes"),
     ("extraction_method", "Method"),
 ]
 
-LINE_ITEM_COLUMNS = [
-    ("_invoice_ref", "Invoice"),
-    ("description", "Description"),
-    ("quantity", "Quantity"),
-    ("unit_price", "Unit Price"),
-    ("amount", "Amount"),
-]
+DOCUMENT_COLUMNS = [("_employee", "Employee"), ("_document", "Document")]
 
 _HEADER_FILL = PatternFill(start_color="1F4E78", end_color="1F4E78", fill_type="solid")
 _HEADER_FONT = Font(color="FFFFFF", bold=True, size=11)
@@ -52,11 +76,11 @@ def _style_header(ws, ncols):
         cell.font = _HEADER_FONT
         cell.alignment = Alignment(horizontal="center", vertical="center", wrap_text=True)
         cell.border = _BORDER
-    ws.row_dimensions[1].height = 24
-    ws.freeze_panes = "A2"
+    ws.row_dimensions[1].height = 26
+    ws.freeze_panes = "B2"
 
 
-def _autofit(ws, headers, max_width=60):
+def _autofit(ws, headers, max_width=45):
     for idx, header in enumerate(headers, start=1):
         letter = get_column_letter(idx)
         longest = len(str(header))
@@ -66,81 +90,68 @@ def _autofit(ws, headers, max_width=60):
         ws.column_dimensions[letter].width = min(max_width, max(10, longest + 2))
 
 
-def _display_ref(record, index):
-    """Human-friendly label for an invoice (used to link line items)."""
-    return (
-        record.get("invoice_number")
-        or record.get("original_filename")
-        or record.get("file")
-        or f"Invoice {index + 1}"
-    )
+def _employee_label(record, index):
+    first = record.get("first_name") or ""
+    last = record.get("family_name") or ""
+    name = f"{first} {last}".strip()
+    return name or record.get("original_filename") or f"Employee {index + 1}"
 
 
 def build_workbook(records):
-    """Build an Excel workbook from a list of extracted-invoice dicts.
-
-    Args:
-        records: list[dict] as returned by extract_invoice_data().
-
-    Returns:
-        openpyxl.Workbook
-    """
+    """Build an Excel workbook from a list of extracted-employee dicts."""
     wb = Workbook()
 
-    # ── Invoices sheet ────────────────────────────────────────────────────────
+    # ── Employees sheet ───────────────────────────────────────────────────────
     ws = wb.active
-    ws.title = "Invoices"
-    summary_headers = [label for _, label in SUMMARY_COLUMNS]
-    ws.append(summary_headers)
+    ws.title = "Employees"
+    headers = [label for _, label in EMPLOYEE_COLUMNS]
+    ws.append(headers)
 
     for record in records:
         row = []
-        for key, _ in SUMMARY_COLUMNS:
-            value = record.get(key)
-            if key == "file":
+        for key, _ in EMPLOYEE_COLUMNS:
+            if key == "original_filename":
                 value = record.get("original_filename") or record.get("file")
-            row.append(value if value is not None else "")
+            else:
+                value = record.get(key)
+            row.append("" if value is None else value)
         ws.append(row)
 
     for r in range(2, ws.max_row + 1):
-        for c in range(1, len(summary_headers) + 1):
-            ws.cell(row=r, column=c).border = _BORDER
-            ws.cell(row=r, column=c).alignment = Alignment(vertical="top", wrap_text=True)
+        for c in range(1, len(headers) + 1):
+            cell = ws.cell(row=r, column=c)
+            cell.border = _BORDER
+            cell.alignment = Alignment(vertical="top", wrap_text=True)
 
-    _style_header(ws, len(summary_headers))
-    _autofit(ws, summary_headers)
+    _style_header(ws, len(headers))
+    _autofit(ws, headers)
 
-    # ── Line Items sheet ──────────────────────────────────────────────────────
-    ws2 = wb.create_sheet("Line Items")
-    line_headers = [label for _, label in LINE_ITEM_COLUMNS]
-    ws2.append(line_headers)
+    # ── Documents sheet ───────────────────────────────────────────────────────
+    ws2 = wb.create_sheet("Documents")
+    doc_headers = [label for _, label in DOCUMENT_COLUMNS]
+    ws2.append(doc_headers)
 
-    any_items = False
+    any_docs = False
     for index, record in enumerate(records):
-        items = record.get("line_items") or []
-        ref = _display_ref(record, index)
-        for item in items:
-            if not isinstance(item, dict):
+        docs = record.get("additional_documents") or []
+        label = _employee_label(record, index)
+        for doc in docs:
+            if not doc:
                 continue
-            any_items = True
-            ws2.append([
-                ref,
-                item.get("description", ""),
-                item.get("quantity", "") if item.get("quantity") is not None else "",
-                item.get("unit_price", "") if item.get("unit_price") is not None else "",
-                item.get("amount", "") if item.get("amount") is not None else "",
-            ])
+            any_docs = True
+            ws2.append([label, str(doc)])
 
-    if not any_items:
-        ws2.append(["(no line items extracted)", "", "", "", ""])
+    if not any_docs:
+        ws2.append(["(no supporting documents detected)", ""])
 
     for r in range(2, ws2.max_row + 1):
-        for c in range(1, len(line_headers) + 1):
-            ws2.cell(row=r, column=c).border = _BORDER
-            ws2.cell(row=r, column=c).alignment = Alignment(vertical="top", wrap_text=True)
+        for c in range(1, len(doc_headers) + 1):
+            cell = ws2.cell(row=r, column=c)
+            cell.border = _BORDER
+            cell.alignment = Alignment(vertical="top", wrap_text=True)
 
-    _style_header(ws2, len(line_headers))
-    _autofit(ws2, line_headers)
+    _style_header(ws2, len(doc_headers))
+    _autofit(ws2, doc_headers, max_width=60)
 
     return wb
 

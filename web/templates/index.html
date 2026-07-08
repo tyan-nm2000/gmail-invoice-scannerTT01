@@ -1,10 +1,11 @@
 {% extends "base.html" %}
-{% block title %}Scan invoices · Invoice Scanner{% endblock %}
+{% block title %}Scan · Employee File Scanner{% endblock %}
 {% block content %}
 <section class="hero">
-  <h1>Scan PDF invoices → Excel</h1>
-  <p class="muted">Upload one or more PDF invoices. We extract the vendor, amounts,
-     dates and line items, then hand you back a formatted Excel workbook.</p>
+  <h1>Scan employee files → Excel</h1>
+  <p class="muted">Upload one or more employee onboarding PDFs (e.g. a Fiche
+     Employé / Employee File). We extract the personal details, job, pay and
+     supporting documents, then hand you back a formatted Excel workbook.</p>
   {% if not has_api_key %}
     <div class="flash error">
       No <code>ANTHROPIC_API_KEY</code> is configured on the server — extraction
