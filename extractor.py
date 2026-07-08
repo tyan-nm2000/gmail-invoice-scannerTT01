@@ -135,7 +135,7 @@ def _extract_with_claude(pdf_path):
 
     try:
         response = client.messages.create(
-            model="claude-sonnet-4-20250514",
+            model=os.environ.get("ANTHROPIC_MODEL", "claude-sonnet-5"),
             max_tokens=4096,
             messages=[{"role": "user", "content": content}],
         )
